@@ -53,7 +53,7 @@ export const Login: React.FC = () => {
           <h1 className="text-3xl font-bold text-primary-600 mb-2 tracking-tight">Textile Manager</h1>
           <p className="text-gray-600 text-sm font-medium">Business Management System</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Mobile Number"
@@ -70,7 +70,7 @@ export const Login: React.FC = () => {
             maxLength={10}
             helperText="Enter your 10-digit mobile number"
           />
-          
+
           <div className="w-full">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Password
@@ -107,13 +107,13 @@ export const Login: React.FC = () => {
               </button>
             </div>
           </div>
-          
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
               {error}
             </div>
           )}
-          
+
           <Button
             type="submit"
             variant="primary"

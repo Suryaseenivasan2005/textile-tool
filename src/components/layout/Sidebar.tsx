@@ -55,11 +55,10 @@ export const Sidebar: React.FC = () => {
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm ${
-                    isActive
-                      ? 'bg-primary-50 text-primary-700 font-semibold shadow-sm'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm ${isActive
+                    ? 'bg-primary-50 text-primary-700 font-semibold shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
                 >
                   <span className={isActive ? 'text-primary-600' : 'text-gray-500'}>{item.icon}</span>
                   <span>{item.label}</span>

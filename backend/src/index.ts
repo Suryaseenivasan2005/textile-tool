@@ -27,6 +27,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Basic routes
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
+
+app.get('/favicon.ico', (req, res) => res.status(204));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });

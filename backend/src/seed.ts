@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
 import { connectDB, getDB, closeDB } from './config/database';
 import { DB_CONFIG } from './constants';
+
+dotenv.config();
 
 const seedUser = async () => {
   try {
@@ -8,8 +11,8 @@ const seedUser = async () => {
     const db = getDB();
     const usersCollection = db.collection(DB_CONFIG.COLLECTIONS.USERS);
 
-    const mobile = '9840082443';
-    const password = 'Test@135';
+    const mobile = '9688257055';
+    const password = 'sms@135';
     const name = 'Admin User';
 
     // Hash password

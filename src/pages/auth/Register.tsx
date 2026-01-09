@@ -61,7 +61,7 @@ export const Register: React.FC = () => {
           <h1 className="text-3xl font-bold text-primary-600 mb-2 tracking-tight">Textile Manager</h1>
           <p className="text-gray-600 text-sm font-medium">Create your account</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Name (Optional)"
@@ -86,7 +86,7 @@ export const Register: React.FC = () => {
             maxLength={10}
             helperText="Enter your 10-digit mobile number"
           />
-          
+
           <div className="w-full">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Password *
@@ -160,13 +160,13 @@ export const Register: React.FC = () => {
               </button>
             </div>
           </div>
-          
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
               {error}
             </div>
           )}
-          
+
           <Button
             type="submit"
             variant="primary"
@@ -176,7 +176,7 @@ export const Register: React.FC = () => {
             Register
           </Button>
         </form>
-        
+
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>Already have an account? <Link to="/login" className="text-primary-600 hover:text-primary-700 font-semibold transition-colors">Login here</Link></p>
         </div>
