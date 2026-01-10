@@ -9,33 +9,33 @@ export const getSales = asyncHandler(async (req: Request, res: Response): Promis
   const db = getDB();
   const salesCollection = db.collection(DB_CONFIG.COLLECTIONS.SALES);
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
-  
+
   const { search, customer_id, payment_type } = req.query;
   const query: any = {};
-  
+
   if (customer_id) {
     query.customer_id = new ObjectId(customer_id as string);
   }
-  
+
   if (payment_type) {
     query.payment_type = payment_type;
   }
-  
+
   if (search) {
     query.$or = [
       { invoice_no: { $regex: search, $options: 'i' } },
     ];
   }
-  
+
   const sales = await salesCollection.find(query).sort({ createdAt: -1 }).toArray();
-  
+
   // Populate customer information
   const formattedSales = await Promise.all(
     sales.map(async (sale) => {
       const customer = sale.customer_id
         ? await customersCollection.findOne({ _id: sale.customer_id })
         : null;
-      
+
       return {
         id: sale._id.toString(),
         invoice_no: sale.invoice_no,
@@ -48,49 +48,49 @@ export const getSales = asyncHandler(async (req: Request, res: Response): Promis
         payment_type: sale.payment_type,
         customer: customer
           ? {
-              id: customer._id.toString(),
-              name: customer.name,
-              phone: customer.phone || null,
-            }
+            id: customer._id.toString(),
+            name: customer.name,
+            phone: customer.phone || null,
+          }
           : null,
         created_at: sale.createdAt,
         updated_at: sale.updatedAt,
       };
     })
   );
-  
+
   res.json(formattedSales);
 });
 
 export const getSale = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  
+
   if (!ObjectId.isValid(id)) {
     res.status(400).json({ error: 'Invalid sale ID' });
     return;
   }
-  
+
   const db = getDB();
   const salesCollection = db.collection(DB_CONFIG.COLLECTIONS.SALES);
   const saleItemsCollection = db.collection(DB_CONFIG.COLLECTIONS.SALE_ITEMS);
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
-  
+
   const sale = await salesCollection.findOne({ _id: new ObjectId(id) });
-  
+
   if (!sale) {
     res.status(404).json({ error: 'Sale not found' });
     return;
   }
-  
+
   // Get customer
   const customer = sale.customer_id
     ? await customersCollection.findOne({ _id: sale.customer_id })
     : null;
-  
+
   // Get items
   const items = await saleItemsCollection.find({ sale_id: new ObjectId(id) }).toArray();
-  
+
   // Populate product information
   const formattedItems = await Promise.all(
     items.map(async (item) => {
@@ -102,15 +102,15 @@ export const getSale = asyncHandler(async (req: Request, res: Response): Promise
         rate: item.rate,
         product: product
           ? {
-              id: product._id.toString(),
-              name: product.name,
-              unit: product.unit,
-            }
+            id: product._id.toString(),
+            name: product.name,
+            unit: product.unit,
+          }
           : null,
       };
     })
   );
-  
+
   res.json({
     id: sale._id.toString(),
     invoice_no: sale.invoice_no,
@@ -123,11 +123,11 @@ export const getSale = asyncHandler(async (req: Request, res: Response): Promise
     payment_type: sale.payment_type,
     customer: customer
       ? {
-          id: customer._id.toString(),
-          name: customer.name,
-          phone: customer.phone || null,
-          address: customer.address || null,
-        }
+        id: customer._id.toString(),
+        name: customer.name,
+        phone: customer.phone || null,
+        address: customer.address || null,
+      }
       : null,
     items: formattedItems,
     created_at: sale.createdAt,
@@ -138,37 +138,37 @@ export const getSale = asyncHandler(async (req: Request, res: Response): Promise
 export const createSale = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const validatedData = saleSchema.parse(req.body);
   const { customer_id, invoice_no, invoice_date, items, discount, payment_type } = validatedData;
-  
+
   const db = getDB();
   const salesCollection = db.collection(DB_CONFIG.COLLECTIONS.SALES);
   const saleItemsCollection = db.collection(DB_CONFIG.COLLECTIONS.SALE_ITEMS);
   const inventoryCollection = db.collection(DB_CONFIG.COLLECTIONS.INVENTORY);
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
-  
+
   // Validate customer if provided
   if (customer_id) {
     if (!ObjectId.isValid(customer_id)) {
       res.status(400).json({ error: 'Invalid customer ID' });
       return;
     }
-    
+
     const customer = await customersCollection.findOne({ _id: new ObjectId(customer_id) });
     if (!customer) {
       res.status(404).json({ error: 'Customer not found' });
       return;
     }
   }
-  
+
   // Validate inventory availability
   for (const item of items) {
     if (!ObjectId.isValid(item.product_id)) {
       res.status(400).json({ error: `Invalid product ID: ${item.product_id}` });
       return;
     }
-    
+
     const productId = new ObjectId(item.product_id);
     const inventory = await inventoryCollection.findOne({ product_id: productId });
-    
+
     if (!inventory || inventory.quantity_available < item.quantity) {
       res.status(400).json({
         error: `Insufficient inventory for product ${item.product_id}`,
@@ -176,16 +176,16 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
       return;
     }
   }
-  
+
   // Calculate totals
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
   const discountAmount = (subtotal * discount) / 100;
   const subtotalAfterDiscount = subtotal - discountAmount;
   const gstAmount = subtotalAfterDiscount * 0.18; // 18% GST
   const totalAmount = subtotalAfterDiscount + gstAmount;
-  
+
   const now = new Date();
-  
+
   // Create sale
   const saleResult = await salesCollection.insertOne({
     customer_id: customer_id ? new ObjectId(customer_id) : null,
@@ -199,14 +199,14 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
     createdAt: now,
     updatedAt: now,
   });
-  
+
   const saleId = saleResult.insertedId;
-  
+
   // Create sale items and update inventory
   const saleItems = await Promise.all(
     items.map(async (item) => {
       const productId = new ObjectId(item.product_id);
-      
+
       // Create sale item
       await saleItemsCollection.insertOne({
         sale_id: saleId,
@@ -216,7 +216,7 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
         createdAt: now,
         updatedAt: now,
       });
-      
+
       // Update inventory (reduce stock)
       await inventoryCollection.updateOne(
         { product_id: productId },
@@ -225,7 +225,7 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
           $set: { updatedAt: now },
         }
       );
-      
+
       return {
         sale_id: saleId.toString(),
         product_id: item.product_id,
@@ -234,7 +234,7 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
       };
     })
   );
-  
+
   res.status(201).json({
     id: saleId.toString(),
     customer_id: customer_id || null,
@@ -253,24 +253,26 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
 
 export const updateSale = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-  
+
   if (!ObjectId.isValid(id)) {
     res.status(400).json({ error: 'Invalid sale ID' });
     return;
   }
-  
+
   const validatedData = saleUpdateSchema.parse(req.body);
-  
+
   const db = getDB();
   const salesCollection = db.collection(DB_CONFIG.COLLECTIONS.SALES);
-  
+
   const sale = await salesCollection.findOne({ _id: new ObjectId(id) });
   if (!sale) {
     res.status(404).json({ error: 'Sale not found' });
     return;
   }
-  
+
   // If items are being updated, recalculate totals
+  const updateData: any = { ...validatedData };
+
   if (validatedData.items) {
     const subtotal = validatedData.items.reduce(
       (sum, item) => sum + item.quantity * item.rate,
@@ -280,19 +282,19 @@ export const updateSale = asyncHandler(async (req: Request, res: Response): Prom
     const subtotalAfterDiscount = subtotal - discountAmount;
     const gstAmount = subtotalAfterDiscount * 0.18;
     const totalAmount = subtotalAfterDiscount + gstAmount;
-    
-    validatedData.subtotal = subtotal;
-    validatedData.gst_amount = gstAmount;
-    validatedData.total_amount = totalAmount;
+
+    updateData.subtotal = subtotal;
+    updateData.gst_amount = gstAmount;
+    updateData.total_amount = totalAmount;
   }
-  
+
   await salesCollection.updateOne(
     { _id: new ObjectId(id) },
-    { $set: { ...validatedData, updatedAt: new Date() } }
+    { $set: { ...updateData, updatedAt: new Date() } }
   );
-  
+
   const updatedSale = await salesCollection.findOne({ _id: new ObjectId(id) });
-  
+
   res.json({
     id: updatedSale!._id.toString(),
     customer_id: updatedSale!.customer_id ? updatedSale!.customer_id.toString() : null,

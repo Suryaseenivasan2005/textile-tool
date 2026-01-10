@@ -7,9 +7,9 @@ export interface JWTPayload {
 }
 
 export const generateToken = (payload: JWTPayload): string => {
-  return jwt.sign(payload, JWT_CONFIG.SECRET, {
+  return jwt.sign({ ...payload }, JWT_CONFIG.SECRET, {
     expiresIn: JWT_CONFIG.EXPIRES_IN,
-  });
+  } as jwt.SignOptions);
 };
 
 export const verifyToken = (token: string): JWTPayload => {
