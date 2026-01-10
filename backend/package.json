@@ -4,9 +4,9 @@
   "description": "Backend API for Textile Business Management System",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "seed": "tsx src/seed.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
