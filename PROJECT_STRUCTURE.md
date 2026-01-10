@@ -1,9 +1,18 @@
 # Project Structure
 
+## Root Structure
+
+```
+.
+├── frontend/           # Frontend (React + Vite)
+├── backend/            # Backend (Node + Express)
+└── ...
+```
+
 ## Frontend Structure
 
 ```
-src/
+frontend/src/
 ├── components/          # Reusable UI components
 │   ├── ui/             # Base UI components (Button, Input, Card, Modal, Table)
 │   ├── layout/         # Layout components (Sidebar, Header, MainLayout)
