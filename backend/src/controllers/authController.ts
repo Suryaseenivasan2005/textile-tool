@@ -108,7 +108,13 @@ export const login = asyncHandler(async (req: Request, res: Response): Promise<v
 
 export const getProfile = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   try {
-    const authReq = req as any;
+    interface AuthRequest extends Request {
+      user?: {
+        userId: string;
+        mobile: string;
+      }
+    }
+    const authReq = req as AuthRequest;
     const userId = authReq.user?.userId;
 
     if (!userId) {
