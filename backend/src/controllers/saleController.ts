@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { saleSchema, saleUpdateSchema } from '../validators/saleValidators';
+import { CreateSaleDTO, UpdateSaleDTO } from '../types';
 
 export const getSales = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -135,7 +136,7 @@ export const getSale = asyncHandler(async (req: Request, res: Response): Promise
   });
 });
 
-export const createSale = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const createSale = asyncHandler(async (req: Request<{}, {}, CreateSaleDTO>, res: Response): Promise<void> => {
   const validatedData = saleSchema.parse(req.body);
   const { customer_id, invoice_no, invoice_date, items, discount, payment_type } = validatedData;
 
@@ -179,7 +180,7 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
 
   // Calculate totals
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
-  const discountAmount = (subtotal * discount) / 100;
+  const discountAmount = (subtotal * (discount || 0)) / 100;
   const subtotalAfterDiscount = subtotal - discountAmount;
   const gstAmount = subtotalAfterDiscount * 0.18; // 18% GST
   const totalAmount = subtotalAfterDiscount + gstAmount;
@@ -251,7 +252,7 @@ export const createSale = asyncHandler(async (req: Request, res: Response): Prom
   });
 });
 
-export const updateSale = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const updateSale = asyncHandler(async (req: Request<{ id: string }, {}, UpdateSaleDTO>, res: Response): Promise<void> => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
@@ -278,12 +279,26 @@ export const updateSale = asyncHandler(async (req: Request, res: Response): Prom
       (sum, item) => sum + item.quantity * item.rate,
       0
     );
-    const discountAmount = (subtotal * (validatedData.discount || sale.discount)) / 100;
+    // Use new discount if provided, else use existing
+    const currentDiscount = validatedData.discount !== undefined ? validatedData.discount : sale.discount;
+
+    const discountAmount = (subtotal * currentDiscount) / 100;
     const subtotalAfterDiscount = subtotal - discountAmount;
     const gstAmount = subtotalAfterDiscount * 0.18;
     const totalAmount = subtotalAfterDiscount + gstAmount;
 
     updateData.subtotal = subtotal;
+    updateData.gst_amount = gstAmount;
+    updateData.total_amount = totalAmount;
+  } else if (validatedData.discount !== undefined) {
+    // New discount but same items, recalculate totals based on old subtotal
+    const subtotal = sale.subtotal;
+    const discountAmount = (subtotal * validatedData.discount) / 100;
+    const subtotalAfterDiscount = subtotal - discountAmount;
+    const gstAmount = subtotalAfterDiscount * 0.18;
+    const totalAmount = subtotalAfterDiscount + gstAmount;
+
+    // We already have subtotal in DB, just update derived
     updateData.gst_amount = gstAmount;
     updateData.total_amount = totalAmount;
   }
@@ -309,4 +324,3 @@ export const updateSale = asyncHandler(async (req: Request, res: Response): Prom
     updated_at: updatedSale!.updatedAt,
   });
 });
-

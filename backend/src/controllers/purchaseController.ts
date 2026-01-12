@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { purchaseSchema, purchaseUpdateSchema } from '../validators/purchaseValidators';
+import { CreatePurchaseDTO, UpdatePurchaseDTO } from '../types';
 
 export const getPurchases = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -133,7 +134,7 @@ export const getPurchase = asyncHandler(async (req: Request, res: Response): Pro
   });
 });
 
-export const createPurchase = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const createPurchase = asyncHandler(async (req: Request<{}, {}, CreatePurchaseDTO>, res: Response): Promise<void> => {
   const validatedData = purchaseSchema.parse(req.body);
   const { vendor_id, invoice_no, invoice_date, items, payment_status } = validatedData;
 
@@ -230,7 +231,7 @@ export const createPurchase = asyncHandler(async (req: Request, res: Response): 
   });
 });
 
-export const updatePurchase = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const updatePurchase = asyncHandler(async (req: Request<{ id: string }, {}, UpdatePurchaseDTO>, res: Response): Promise<void> => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
@@ -287,7 +288,7 @@ export const updatePurchase = asyncHandler(async (req: Request, res: Response): 
 });
 
 export const updatePurchaseStatus = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
+  async (req: Request<{ id: string }, {}, { payment_status: string }>, res: Response): Promise<void> => {
     const { id } = req.params;
     const { payment_status } = req.body;
 
@@ -318,4 +319,3 @@ export const updatePurchaseStatus = asyncHandler(
     res.json({ message: 'Purchase status updated successfully' });
   }
 );
-
