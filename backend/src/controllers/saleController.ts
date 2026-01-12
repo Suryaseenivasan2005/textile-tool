@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
+import { ObjectId, Filter } from 'mongodb';
 import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
@@ -12,7 +12,7 @@ export const getSales = asyncHandler(async (req: Request, res: Response): Promis
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
 
   const { search, customer_id, payment_type } = req.query;
-  const query: any = {};
+  const query: Filter<any> = {};
 
   if (customer_id) {
     query.customer_id = new ObjectId(customer_id as string);
@@ -136,7 +136,7 @@ export const getSale = asyncHandler(async (req: Request, res: Response): Promise
   });
 });
 
-export const createSale = asyncHandler(async (req: Request<{}, {}, CreateSaleDTO>, res: Response): Promise<void> => {
+export const createSale = asyncHandler(async (req: Request<any, any, CreateSaleDTO>, res: Response): Promise<void> => {
   const validatedData = saleSchema.parse(req.body);
   const { customer_id, invoice_no, invoice_date, items, discount, payment_type } = validatedData;
 
@@ -188,7 +188,7 @@ export const createSale = asyncHandler(async (req: Request<{}, {}, CreateSaleDTO
   const now = new Date();
 
   // Create sale
-  const saleResult = await salesCollection.insertOne({
+  const saleDoc = {
     customer_id: customer_id ? new ObjectId(customer_id) : null,
     invoice_no,
     invoice_date,
@@ -199,7 +199,9 @@ export const createSale = asyncHandler(async (req: Request<{}, {}, CreateSaleDTO
     payment_type: payment_type || 'cash',
     createdAt: now,
     updatedAt: now,
-  });
+  };
+
+  const saleResult = await salesCollection.insertOne(saleDoc);
 
   const saleId = saleResult.insertedId;
 
@@ -252,7 +254,7 @@ export const createSale = asyncHandler(async (req: Request<{}, {}, CreateSaleDTO
   });
 });
 
-export const updateSale = asyncHandler(async (req: Request<{ id: string }, {}, UpdateSaleDTO>, res: Response): Promise<void> => {
+export const updateSale = asyncHandler(async (req: Request<any, any, UpdateSaleDTO>, res: Response): Promise<void> => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
@@ -272,7 +274,7 @@ export const updateSale = asyncHandler(async (req: Request<{ id: string }, {}, U
   }
 
   // If items are being updated, recalculate totals
-  const updateData: any = { ...validatedData };
+  const updateData: Record<string, any> = { ...validatedData };
 
   if (validatedData.items) {
     const subtotal = validatedData.items.reduce(

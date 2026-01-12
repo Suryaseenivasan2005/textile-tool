@@ -7,21 +7,28 @@ export interface JWTPayload {
 }
 
 export const generateToken = (payload: JWTPayload): string => {
-  // Ensure Secret is treated as Secret (string | Buffer)
-  const secret = JWT_CONFIG.SECRET as Secret;
+  const secret = JWT_CONFIG.SECRET;
 
-  // Ensure options.expiresIn is compatible
-  // JWT_CONFIG.EXPIRES_IN comes from process.env (string) or default string
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+  }
+
   const options: SignOptions = {
-    expiresIn: JWT_CONFIG.EXPIRES_IN as string | number,
+    expiresIn: JWT_CONFIG.EXPIRES_IN as string,
   };
 
-  return jwt.sign({ ...payload }, secret, options);
+  return jwt.sign(payload, secret, options);
 };
 
 export const verifyToken = (token: string): JWTPayload => {
+  const secret = JWT_CONFIG.SECRET;
+
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined');
+  }
+
   try {
-    return jwt.verify(token, JWT_CONFIG.SECRET as Secret) as JWTPayload;
+    return jwt.verify(token, secret) as JWTPayload;
   } catch (error) {
     throw new Error('Invalid or expired token');
   }

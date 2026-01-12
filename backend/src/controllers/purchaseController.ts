@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
+import { ObjectId, Filter } from 'mongodb';
 import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
@@ -12,7 +12,7 @@ export const getPurchases = asyncHandler(async (req: Request, res: Response): Pr
   const vendorsCollection = db.collection(DB_CONFIG.COLLECTIONS.VENDORS);
 
   const { search, vendor_id, payment_status } = req.query;
-  const query: any = {};
+  const query: Filter<any> = {};
 
   if (vendor_id) {
     query.vendor_id = new ObjectId(vendor_id as string);
@@ -134,7 +134,7 @@ export const getPurchase = asyncHandler(async (req: Request, res: Response): Pro
   });
 });
 
-export const createPurchase = asyncHandler(async (req: Request<{}, {}, CreatePurchaseDTO>, res: Response): Promise<void> => {
+export const createPurchase = asyncHandler(async (req: Request<any, any, CreatePurchaseDTO>, res: Response): Promise<void> => {
   const validatedData = purchaseSchema.parse(req.body);
   const { vendor_id, invoice_no, invoice_date, items, payment_status } = validatedData;
 
@@ -163,8 +163,8 @@ export const createPurchase = asyncHandler(async (req: Request<{}, {}, CreatePur
 
   const now = new Date();
 
-  // Create purchase
-  const purchaseResult = await purchasesCollection.insertOne({
+  // Create purchase object explicitly to avoid relying on req.body types
+  const purchaseDoc = {
     vendor_id: new ObjectId(vendor_id),
     invoice_no,
     invoice_date,
@@ -174,7 +174,9 @@ export const createPurchase = asyncHandler(async (req: Request<{}, {}, CreatePur
     payment_status: payment_status || 'pending',
     createdAt: now,
     updatedAt: now,
-  });
+  };
+
+  const purchaseResult = await purchasesCollection.insertOne(purchaseDoc);
 
   const purchaseId = purchaseResult.insertedId;
 
@@ -231,7 +233,7 @@ export const createPurchase = asyncHandler(async (req: Request<{}, {}, CreatePur
   });
 });
 
-export const updatePurchase = asyncHandler(async (req: Request<{ id: string }, {}, UpdatePurchaseDTO>, res: Response): Promise<void> => {
+export const updatePurchase = asyncHandler(async (req: Request<any, any, UpdatePurchaseDTO>, res: Response): Promise<void> => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
@@ -250,8 +252,8 @@ export const updatePurchase = asyncHandler(async (req: Request<{ id: string }, {
     return;
   }
 
-  // If items are being updated, recalculate totals
-  const updateData: any = { ...validatedData };
+  // Update object with flexible type to allow adding calculated fields
+  const updateData: Record<string, any> = { ...validatedData };
 
   if (validatedData.items) {
     const subtotal = validatedData.items.reduce(
@@ -288,7 +290,7 @@ export const updatePurchase = asyncHandler(async (req: Request<{ id: string }, {
 });
 
 export const updatePurchaseStatus = asyncHandler(
-  async (req: Request<{ id: string }, {}, { payment_status: string }>, res: Response): Promise<void> => {
+  async (req: Request<any, any, { payment_status: string }>, res: Response): Promise<void> => {
     const { id } = req.params;
     const { payment_status } = req.body;
 

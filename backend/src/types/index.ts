@@ -27,7 +27,7 @@ export interface CreateSaleDTO {
     invoice_date: string;
     items: SaleItemDTO[];
     discount?: number;
-    payment_type?: 'cash' | 'card' | 'upi' | 'credit';
+    payment_type?: 'cash' | 'credit';
 }
 
 export interface UpdateSaleDTO extends Partial<CreateSaleDTO> { }
