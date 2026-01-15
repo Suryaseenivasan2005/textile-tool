@@ -10,13 +10,10 @@
             "use": "@vercel/static"
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-            "handle": "filesystem"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/backend/src/index.ts"
+            "source": "/(.*)",
+            "destination": "/backend/src/index.ts"
         }
     ]
 }
