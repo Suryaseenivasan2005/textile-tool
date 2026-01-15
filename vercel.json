@@ -12,6 +12,9 @@
     ],
     "routes": [
         {
+            "handle": "filesystem"
+        },
+        {
             "src": "/(.*)",
             "dest": "/backend/src/index.ts"
         }
