@@ -6,7 +6,7 @@
       "ES2020"
     ],
     "outDir": "./dist",
-    "rootDir": "public",
+    "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -16,12 +16,12 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "public/*"
+        "src/*"
       ]
     }
   },
   "include": [
-    "public/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
