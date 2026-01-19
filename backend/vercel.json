@@ -13,7 +13,7 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "backend/public/index.ts"
+            "dest": "backend/src/index.ts"
         }
     ]
 }
