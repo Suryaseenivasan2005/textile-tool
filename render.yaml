@@ -2,17 +2,10 @@ services:
   - type: web
     name: tex-tool-backend
     runtime: node
-    rootDir: ./backend
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm start
+    buildCommand: bash render-build.sh
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        scope: BUILD
-      - key: JWT_SECRET
-        scope: BUILD
-      - key: MONGODB_URI
-        scope: BUILD
       - key: PORT
-        value: "3000"
+        value: "10000"
