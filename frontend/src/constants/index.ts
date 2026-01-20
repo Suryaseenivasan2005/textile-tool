@@ -1,5 +1,13 @@
 // API Configuration
-export const API_BASE_URL: string = import.meta.env.VITE_API_URL || '/api';
+const apiUrl = import.meta.env.VITE_API_URL;
+
+// In production, VITE_API_URL must be set
+if (!apiUrl && import.meta.env.PROD) {
+  throw new Error('VITE_API_URL environment variable is required in production');
+}
+
+// For development, use the proxy-friendly path or the env var
+export const API_BASE_URL: string = apiUrl || '/api';
 
 // Routes
 export const ROUTES = {
