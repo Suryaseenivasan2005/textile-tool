@@ -12,7 +12,7 @@ const seedUser = async () => {
     const usersCollection = db.collection(DB_CONFIG.COLLECTIONS.USERS);
 
     const mobile = '9688257055';
-    const password = 'sms@135';
+    const password = 'Karthick@123';
     const name = 'Admin User';
 
     // Hash password
