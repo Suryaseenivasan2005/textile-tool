@@ -7,11 +7,16 @@ export interface AppError extends Error {
 }
 
 export const errorHandler = (
-  err: AppError | ZodError,
+  err: AppError | ZodError | Error,
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
+  // Log all errors to console for Render logs
+  console.error('🚨 ERROR CAUGHT BY GLOBAL HANDLER:');
+  console.error('  Path:', req.method, req.path);
+  console.error('  Error:', err);
+
   // Handle Zod validation errors
   if (err instanceof ZodError) {
     const statusCode = 400;
@@ -20,7 +25,8 @@ export const errorHandler = (
       message: e.message,
     }));
 
-    console.error('Validation Error:', message);
+    console.error('  Type: Validation Error');
+    console.error('  Details:', JSON.stringify(message));
 
     res.status(statusCode).json({
       error: 'Validation failed',
@@ -29,19 +35,33 @@ export const errorHandler = (
     return;
   }
 
-  // Handle other errors
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal server error';
+  // Handle custom AppError
+  if ('statusCode' in err && err.statusCode) {
+    console.error('  Type: Application Error');
+    console.error('  Status Code:', err.statusCode);
+    console.error('  Message:', err.message);
 
-  console.error('Error:', {
-    message,
-    statusCode,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-  });
+    res.status(err.statusCode).json({
+      error: err.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    });
+    return;
+  }
 
-  res.status(statusCode).json({
-    error: message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+  // Handle all other errors (including database, JWT, etc.)
+  console.error('  Type: Unhandled Error');
+  console.error('  Message:', err.message);
+  console.error('  Stack:', err.stack);
+
+  // Always return 500 for unknown errors
+  res.status(500).json({
+    error: process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && {
+      stack: err.stack,
+      details: err
+    }),
   });
 };
 
@@ -51,4 +71,5 @@ export const createError = (message: string, statusCode: number = 500): AppError
   error.isOperational = true;
   return error;
 };
+
 

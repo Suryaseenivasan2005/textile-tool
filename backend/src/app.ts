@@ -22,6 +22,24 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request logging middleware (for debugging production issues)
+app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] ${req.method} ${req.path}`);
+
+    // Log body for non-GET requests (sanitize sensitive data)
+    if (req.method !== 'GET' && req.body) {
+        const sanitizedBody = { ...req.body };
+        // Remove password from logs
+        if (sanitizedBody.password) {
+            sanitizedBody.password = '[REDACTED]';
+        }
+        console.log(`  Body:`, JSON.stringify(sanitizedBody));
+    }
+
+    next();
+});
+
 // Basic routes
 app.get('/', (req, res) => {
     res.send('Backend running');
