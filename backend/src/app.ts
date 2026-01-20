@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import { connectDB } from './config/database';
 import authRoutes from './routes/authRoutes';
 import vendorRoutes from './routes/vendorRoutes';
 import customerRoutes from './routes/customerRoutes';
@@ -23,21 +22,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// DB Connection for Serverless envs (Optional but recommended to ensure connection)
-app.use(async (req, res, next) => {
-    if (process.env.VERCEL) {
-        try {
-            await connectDB();
-        } catch (err) {
-            console.error("DB Connect Error", err);
-        }
-    }
-    next();
-});
-
 // Basic routes
 app.get('/', (req, res) => {
-    res.send('API is running...');
+    res.send('Backend running');
 });
 
 app.get('/favicon.ico', (req, res) => res.status(204));
