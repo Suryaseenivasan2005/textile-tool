@@ -14,10 +14,12 @@ export const VALIDATION = {
   MOBILE_REGEX: /^[0-9]{10}$/,
 } as const;
 
-// JWT
+// JWT Configuration
+// CRITICAL: JWT_SECRET must be set in environment variables
+// The application will fail at runtime if JWT_SECRET is not configured
 export const JWT_CONFIG = {
   EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
-  SECRET: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
+  SECRET: process.env.JWT_SECRET, // No fallback - must be set in .env
 } as const;
 
 // Database

@@ -13,12 +13,34 @@ import inventoryRoutes from './routes/inventoryRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 import settingsRoutes from './routes/settingsRoutes';
+import seedRoutes from './routes/seedRoutes';
 import { errorHandler } from './middleware/errorHandler';
+import { getDB } from './config/database';
+import { DB_CONFIG } from './constants';
 
 const app = express();
 
+// CORS Configuration
+// In production, restrict to your frontend domain for security
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? [
+            'https://textile-tool.vercel.app', // Add your actual Vercel domain
+            /\.vercel\.app$/, // Allow all Vercel preview deployments
+        ]
+        : '*', // Allow all origins in development
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+console.log('🔐 CORS Configuration:', {
+    environment: process.env.NODE_ENV || 'development',
+    origin: corsOptions.origin,
+});
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -47,13 +69,42 @@ app.get('/', (req, res) => {
 
 app.get('/favicon.ico', (req, res) => res.status(204));
 
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
+// Enhanced Health check endpoint
+app.get('/health', async (req, res) => {
+    try {
+        const db = getDB();
+        const usersCollection = db.collection(DB_CONFIG.COLLECTIONS.USERS);
+        const userCount = await usersCollection.countDocuments();
+
+        res.json({
+            status: 'ok',
+            message: 'Server is running',
+            timestamp: new Date().toISOString(),
+            environment: process.env.NODE_ENV || 'development',
+            database: {
+                connected: true,
+                name: DB_CONFIG.DATABASE_NAME,
+                userCount,
+                needsSeeding: userCount === 0
+            }
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: 'error',
+            message: 'Database connection failed',
+            timestamp: new Date().toISOString(),
+            environment: process.env.NODE_ENV || 'development',
+            database: {
+                connected: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            }
+        });
+    }
 });
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/seed', seedRoutes); // Database seeding endpoints
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
