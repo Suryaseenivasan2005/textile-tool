@@ -82,6 +82,13 @@ class ApiService {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Token is invalid or expired
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.USER);
+        window.location.href = '/login';
+        throw new Error('Session expired. Please login again.');
+      }
       const error = await response.json().catch(() => ({ error: 'An error occurred' }));
       throw new Error(error.error || `HTTP error! status: ${response.status}`);
     }

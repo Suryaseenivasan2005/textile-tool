@@ -2,21 +2,20 @@ import { MongoClient, Db } from 'mongodb';
 import { DB_CONFIG } from '../constants';
 
 // CRITICAL: DATABASE_URL must be set in environment variables
-const uri = process.env.DATABASE_URL;
-
-if (!uri) {
-  console.error('❌ FATAL ERROR: DATABASE_URL environment variable is not set!');
-  console.error('   Please configure DATABASE_URL in your .env file or deployment platform.');
-  throw new Error('DATABASE_URL is required but not configured');
-}
-
-let client: MongoClient;
-let db: Db;
+let client: MongoClient | null = null;
+let db: Db | null = null;
 
 export const connectDB = async (): Promise<Db> => {
   if (db) {
     console.log('✅ Using existing MongoDB connection');
     return db;
+  }
+
+  const uri = process.env.DATABASE_URL;
+  if (!uri) {
+    console.error('❌ FATAL ERROR: DATABASE_URL environment variable is not set!');
+    console.error('   Please configure DATABASE_URL in your .env file or deployment platform.');
+    throw new Error('DATABASE_URL is required but not configured');
   }
 
   try {
