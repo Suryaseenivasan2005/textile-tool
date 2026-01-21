@@ -30,7 +30,7 @@ export const seedAdminUser = asyncHandler(async (req: Request, res: Response): P
 
         // Default admin credentials
         const mobile = '9688257055';
-        const password = 'Karthick@123';
+        const password = 'Karthick@135';
         const name = 'Admin User';
 
         // Check if any users exist
