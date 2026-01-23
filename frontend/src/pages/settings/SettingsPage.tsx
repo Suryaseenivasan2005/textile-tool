@@ -137,9 +137,9 @@ export const SettingsPage: React.FC = () => {
                 min="0"
                 max="100"
                 step="0.01"
-                value={settings.tax_rate || 18}
-                onChange={(e) => setSettings({ ...settings, tax_rate: parseFloat(e.target.value) || 18 })}
-                placeholder="18"
+                value={settings.tax_rate || 5}
+                onChange={(e) => setSettings({ ...settings, tax_rate: parseFloat(e.target.value) || 5 })}
+                placeholder="5"
                 helperText="Default GST rate for invoices"
               />
             </div>
