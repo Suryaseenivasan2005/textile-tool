@@ -13,7 +13,7 @@ export const SettingsPage: React.FC = () => {
     business_phone: '',
     business_email: '',
     gst_number: '',
-    tax_rate: 18,
+    tax_rate: 5,
     invoice_prefix: 'INV',
   });
 
@@ -72,102 +72,102 @@ export const SettingsPage: React.FC = () => {
       ) : (
         <form onSubmit={handleSubmit}>
           <Card title="Business Details" className="mb-6">
-          <div className="space-y-4">
-            <Input
-              label="Business Name *"
-              value={settings.business_name || ''}
-              onChange={(e) => setSettings({ ...settings, business_name: e.target.value })}
-              required
-              placeholder="Enter business name"
-            />
+            <div className="space-y-4">
+              <Input
+                label="Business Name *"
+                value={settings.business_name || ''}
+                onChange={(e) => setSettings({ ...settings, business_name: e.target.value })}
+                required
+                placeholder="Enter business name"
+              />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Business Address
-              </label>
-              <textarea
-                value={settings.business_address || ''}
-                onChange={(e) => setSettings({ ...settings, business_address: e.target.value })}
-                className="input min-h-[100px]"
-                placeholder="Enter business address"
-                rows={4}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Business Address
+                </label>
+                <textarea
+                  value={settings.business_address || ''}
+                  onChange={(e) => setSettings({ ...settings, business_address: e.target.value })}
+                  className="input min-h-[100px]"
+                  placeholder="Enter business address"
+                  rows={4}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Phone"
+                  type="tel"
+                  value={settings.business_phone || ''}
+                  onChange={(e) => setSettings({ ...settings, business_phone: e.target.value })}
+                  placeholder="Enter phone number"
+                />
+
+                <Input
+                  label="Email"
+                  type="email"
+                  value={settings.business_email || ''}
+                  onChange={(e) => setSettings({ ...settings, business_email: e.target.value })}
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <Input
+                label="GST Number"
+                value={settings.gst_number || ''}
+                onChange={(e) => setSettings({ ...settings, gst_number: e.target.value })}
+                placeholder="Enter GST number"
               />
             </div>
+          </Card>
 
-            <div className="grid grid-cols-2 gap-4">
+          <Card title="Invoice Settings" className="mb-6">
+            <div className="space-y-4">
               <Input
-                label="Phone"
-                type="tel"
-                value={settings.business_phone || ''}
-                onChange={(e) => setSettings({ ...settings, business_phone: e.target.value })}
-                placeholder="Enter phone number"
+                label="Invoice Prefix"
+                value={settings.invoice_prefix || ''}
+                onChange={(e) => setSettings({ ...settings, invoice_prefix: e.target.value })}
+                placeholder="e.g., INV, BILL"
+                helperText="Prefix for invoice numbers"
               />
 
               <Input
-                label="Email"
-                type="email"
-                value={settings.business_email || ''}
-                onChange={(e) => setSettings({ ...settings, business_email: e.target.value })}
-                placeholder="Enter email address"
+                label="Tax Rate (%)"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={settings.tax_rate || 18}
+                onChange={(e) => setSettings({ ...settings, tax_rate: parseFloat(e.target.value) || 18 })}
+                placeholder="18"
+                helperText="Default GST rate for invoices"
               />
             </div>
+          </Card>
 
-            <Input
-              label="GST Number"
-              value={settings.gst_number || ''}
-              onChange={(e) => setSettings({ ...settings, gst_number: e.target.value })}
-              placeholder="Enter GST number"
-            />
+          <Card title="Units Configuration" className="mb-6">
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Available units: Meter, Yard, Piece, Kilogram, Roll
+              </p>
+              <p className="text-sm text-gray-500">
+                Units can be configured when adding products. Default unit is Meter.
+              </p>
+            </div>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={isSaving}
+              className="flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              Save Settings
+            </Button>
           </div>
-        </Card>
-
-        <Card title="Invoice Settings" className="mb-6">
-          <div className="space-y-4">
-            <Input
-              label="Invoice Prefix"
-              value={settings.invoice_prefix || ''}
-              onChange={(e) => setSettings({ ...settings, invoice_prefix: e.target.value })}
-              placeholder="e.g., INV, BILL"
-              helperText="Prefix for invoice numbers"
-            />
-
-            <Input
-              label="Tax Rate (%)"
-              type="number"
-              min="0"
-              max="100"
-              step="0.01"
-              value={settings.tax_rate || 18}
-              onChange={(e) => setSettings({ ...settings, tax_rate: parseFloat(e.target.value) || 18 })}
-              placeholder="18"
-              helperText="Default GST rate for invoices"
-            />
-          </div>
-        </Card>
-
-        <Card title="Units Configuration" className="mb-6">
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              Available units: Meter, Yard, Piece, Kilogram, Roll
-            </p>
-            <p className="text-sm text-gray-500">
-              Units can be configured when adding products. Default unit is Meter.
-            </p>
-          </div>
-        </Card>
-
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            variant="primary"
-            isLoading={isSaving}
-            className="flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            Save Settings
-          </Button>
-        </div>
-      </form>
+        </form>
       )}
     </div>
   );

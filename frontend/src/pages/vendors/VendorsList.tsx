@@ -101,11 +101,10 @@ export const VendorsList: React.FC = () => {
       header: 'Status',
       render: (vendor: Vendor) => (
         <span
-          className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-            vendor.status === 'active'
+          className={`px-2.5 py-1 text-xs font-semibold rounded-full ${vendor.status === 'active'
               ? 'bg-green-100 text-green-700'
               : 'bg-gray-100 text-gray-600'
-          }`}
+            }`}
         >
           {vendor.status}
         </span>
@@ -227,7 +226,7 @@ export const VendorsList: React.FC = () => {
         {selectedVendor && (
           <VendorForm
             vendor={selectedVendor}
-            onSubmit={handleEditVendor}
+            onSubmit={(data) => handleEditVendor(data as Vendor)}
             onCancel={() => {
               setIsEditModalOpen(false);
               setSelectedVendor(null);
