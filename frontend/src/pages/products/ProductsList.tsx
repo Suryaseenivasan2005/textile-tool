@@ -106,12 +106,12 @@ export const ProductsList: React.FC = () => {
     {
       key: 'cost_price' as keyof Product,
       header: 'Cost Price',
-      render: (product: Product) => `₹${product.cost_price.toFixed(2)}`,
+      render: (product: Product) => `₹${(product.cost_price || 0).toFixed(2)}`,
     },
     {
       key: 'selling_price' as keyof Product,
       header: 'Selling Price',
-      render: (product: Product) => `₹${product.selling_price.toFixed(2)}`,
+      render: (product: Product) => `₹${(product.selling_price || 0).toFixed(2)}`,
     },
     {
       key: 'status' as keyof Product,

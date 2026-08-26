@@ -19,6 +19,7 @@ import {
   Settings
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useDemo } from '../../context/DemoContext';
 import { Button } from '../ui/Button';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -46,9 +47,18 @@ const navItems: NavItem[] = [
 
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
+  const { isDemoMode, endDemo } = useDemo();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    if (isDemoMode) {
+      endDemo();
+    } else {
+      logout();
+    }
+  };
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -78,18 +88,22 @@ export const Header: React.FC = () => {
             <User className="w-4 h-4" />
           </div>
           <div className="hidden sm:block">
-            <p className="font-medium text-gray-900 text-sm">{user?.name || 'Admin'}</p>
-            <p className="text-xs text-gray-500">{user?.mobile}</p>
+            <p className="font-medium text-gray-900 text-sm">
+              {isDemoMode ? 'Demo User' : (user?.name || 'Admin')}
+            </p>
+            <p className="text-xs text-gray-500">
+              {isDemoMode ? 'Sample mode' : user?.mobile}
+            </p>
           </div>
         </div>
         <Button
           variant="outline"
           size="sm"
-          onClick={logout}
+          onClick={handleLogout}
           className="flex items-center gap-2"
         >
           <LogOut className="w-4 h-4" />
-          <span className="hidden sm:inline">Logout</span>
+          <span className="hidden sm:inline">{isDemoMode ? 'Exit Demo' : 'Logout'}</span>
         </Button>
       </div>
 
@@ -122,10 +136,10 @@ export const Header: React.FC = () => {
             <Button
               variant="ghost"
               className="justify-start w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={logout}
+              onClick={handleLogout}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Logout
+              {isDemoMode ? 'Exit Demo' : 'Logout'}
             </Button>
           </div>
         </div>
@@ -133,4 +147,3 @@ export const Header: React.FC = () => {
     </header>
   );
 };
-

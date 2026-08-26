@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import { Settings } from '../../types';
 import { apiService } from '../../services/api';
+import { useDemo } from '../../context/DemoContext';
 
 export const SettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<Settings>({
@@ -16,10 +17,10 @@ export const SettingsPage: React.FC = () => {
     tax_rate: 5,
     invoice_prefix: 'INV',
   });
-
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isDemoMode } = useDemo();
 
   useEffect(() => {
     loadSettings();
@@ -38,9 +39,12 @@ export const SettingsPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isDemoMode) {
+      setError('Settings cannot be changed in demo mode.');
+      return;
+    }
     try {
       setIsSaving(true);
       setError(null);
@@ -60,10 +64,15 @@ export const SettingsPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Settings & Configuration</h1>
         <p className="text-gray-600 mt-1">Configure your business details and system settings</p>
       </div>
-
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
           {error}
+        </div>
+      )}
+
+      {isDemoMode && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2">
+          <span>⚡</span> Settings modification is disabled in Demo Mode.
         </div>
       )}
 
@@ -161,6 +170,7 @@ export const SettingsPage: React.FC = () => {
               type="submit"
               variant="primary"
               isLoading={isSaving}
+              disabled={isDemoMode}
               className="flex items-center gap-2"
             >
               <Save className="w-4 h-4" />

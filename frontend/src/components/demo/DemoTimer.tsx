@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDemo, DEMO_DURATION } from '../../context/DemoContext';
 
 const formatTime = (seconds: number): string => {
@@ -9,116 +9,125 @@ const formatTime = (seconds: number): string => {
 
 export const DemoTimer: React.FC = () => {
   const { timeLeft, resetDemo, endDemo } = useDemo();
+  const [expanded, setExpanded] = useState(false);
 
   const percentage = (timeLeft / DEMO_DURATION) * 100;
-  const isLow = timeLeft < 120; // < 2 min
-  const circumference = 2 * Math.PI * 22; // radius 22
+  const isLow = timeLeft < 120;
+  const radius = 16;
+  const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (percentage / 100) * circumference;
+  const color = isLow ? '#ef4444' : '#8b5cf6';
 
   return (
     <div
-      id="demo-timer-widget"
       style={{
         position: 'fixed',
-        bottom: '24px',
-        left: '24px',
+        bottom: '20px',
+        right: '20px',
         zIndex: 9999,
-        background: isLow
-          ? 'linear-gradient(135deg, #2d0a0a 0%, #1a0000 100%)'
-          : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-        border: `1px solid ${isLow ? 'rgba(239,68,68,0.4)' : 'rgba(139,92,246,0.3)'}`,
-        borderRadius: '16px',
-        padding: '16px',
-        boxShadow: `0 8px 32px ${isLow ? 'rgba(239,68,68,0.25)' : 'rgba(139,92,246,0.2)'}`,
-        backdropFilter: 'blur(16px)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '10px',
-        minWidth: '160px',
-        transition: 'all 0.3s ease',
       }}
     >
-      {/* Label */}
-      <div style={{ color: isLow ? '#fca5a5' : '#c4b5fd', fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-        Demo Session
-      </div>
+      {/* Expanded panel */}
+      {expanded && (
+        <div style={{
+          marginBottom: '10px',
+          background: 'rgba(15,12,41,0.95)',
+          border: `1px solid ${isLow ? 'rgba(239,68,68,0.35)' : 'rgba(139,92,246,0.3)'}`,
+          borderRadius: '12px',
+          padding: '12px 14px',
+          backdropFilter: 'blur(12px)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          minWidth: '150px',
+        }}>
+          <div style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 500, textAlign: 'center' }}>
+            Demo Session
+          </div>
+          <button
+            id="demo-reset-btn"
+            onClick={resetDemo}
+            style={{
+              background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '7px',
+              padding: '7px 0',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              width: '100%',
+            }}
+          >
+            ↺ Reset
+          </button>
+          <button
+            id="demo-end-btn"
+            onClick={endDemo}
+            style={{
+              background: 'transparent',
+              color: '#94a3b8',
+              border: '1px solid rgba(148,163,184,0.2)',
+              borderRadius: '7px',
+              padding: '6px 0',
+              fontSize: '11px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              width: '100%',
+            }}
+          >
+            ✕ Exit
+          </button>
+        </div>
+      )}
 
-      {/* Circular timer */}
-      <div style={{ position: 'relative', width: '64px', height: '64px' }}>
-        <svg width="64" height="64" style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx="32" cy="32" r="22" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
+      {/* Compact pill — always visible */}
+      <button
+        id="demo-timer-toggle"
+        onClick={() => setExpanded(e => !e)}
+        title="Demo timer — click to expand"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          background: 'rgba(15,12,41,0.92)',
+          border: `1px solid ${isLow ? 'rgba(239,68,68,0.5)' : 'rgba(139,92,246,0.4)'}`,
+          borderRadius: '100px',
+          padding: '5px 12px 5px 6px',
+          cursor: 'pointer',
+          backdropFilter: 'blur(10px)',
+          boxShadow: `0 2px 16px ${isLow ? 'rgba(239,68,68,0.2)' : 'rgba(139,92,246,0.15)'}`,
+          transition: 'all 0.2s ease',
+        }}
+      >
+        {/* Mini ring */}
+        <svg width="28" height="28" style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
+          <circle cx="14" cy="14" r={radius} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="3" />
           <circle
-            cx="32"
-            cy="32"
-            r="22"
+            cx="14" cy="14" r={radius}
             fill="none"
-            stroke={isLow ? '#ef4444' : '#8b5cf6'}
-            strokeWidth="4"
+            stroke={color}
+            strokeWidth="3"
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
             strokeLinecap="round"
             style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease' }}
           />
         </svg>
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: isLow ? '#f87171' : '#e2e8f0',
-          fontSize: '13px',
+        <span style={{
+          color: isLow ? '#f87171' : '#c4b5fd',
+          fontSize: '12px',
           fontWeight: 700,
           fontVariantNumeric: 'tabular-nums',
-          whiteSpace: 'nowrap',
+          letterSpacing: '0.04em',
         }}>
           {formatTime(timeLeft)}
-        </div>
-      </div>
-
-      {/* Buttons */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
-        <button
-          id="demo-reset-btn"
-          onClick={resetDemo}
-          style={{
-            background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '7px 0',
-            fontSize: '12px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            width: '100%',
-            transition: 'opacity 0.2s',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
-          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-        >
-          ↺ Reset Demo
-        </button>
-        <button
-          id="demo-end-btn"
-          onClick={endDemo}
-          style={{
-            background: 'transparent',
-            color: '#94a3b8',
-            border: '1px solid rgba(148,163,184,0.25)',
-            borderRadius: '8px',
-            padding: '6px 0',
-            fontSize: '11px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            width: '100%',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#e2e8f0'; e.currentTarget.style.borderColor = 'rgba(148,163,184,0.5)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(148,163,184,0.25)'; }}
-        >
-          ✕ Exit Demo
-        </button>
-      </div>
+        </span>
+        <span style={{ color: '#475569', fontSize: '10px', marginLeft: '2px' }}>
+          {expanded ? '▲' : '▼'}
+        </span>
+      </button>
     </div>
   );
 };
