@@ -26,6 +26,20 @@ const seedDemoData = async () => {
     return d.toISOString().split('T')[0];
   };
 
+  // --- 0. Settings ---
+  const demoSettings = {
+    business_name: 'Demo Textile Traders',
+    business_address: '123 Fashion Street, Silk District\nMumbai, Maharashtra 400001',
+    business_phone: '9876543210',
+    business_email: 'hello@demotextiles.com',
+    gst_number: '27AADCD1234E1Z5',
+    tax_rate: 5,
+    invoice_prefix: 'DEMO',
+    is_demo: true,
+  };
+  
+  await db.collection(DB_CONFIG.COLLECTIONS.SETTINGS).insertOne(demoSettings);
+
   // --- 1. Vendors ---
   const vendorDocs = [
     { name: 'Textile Mills Ltd', gst_number: '27AABCU9603R1ZJ', phone: '9876543210', address: 'Bhiwandi, Maharashtra', status: 'active', is_demo: true, createdAt: now, updatedAt: now },
