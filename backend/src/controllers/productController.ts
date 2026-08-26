@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { productSchema, productUpdateSchema } from '../validators/productValidators';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getProducts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -28,7 +29,7 @@ export const getProducts = asyncHandler(async (req: Request, res: Response): Pro
     ];
   }
   
-  const products = await productsCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const products = await productsCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
   
   const formattedProducts = products.map((product) => ({
     id: product._id.toString(),
@@ -58,7 +59,7 @@ export const getProduct = asyncHandler(async (req: Request, res: Response): Prom
   const db = getDB();
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
   
-  const product = await productsCollection.findOne({ _id: new ObjectId(id) });
+  const product = await productsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   if (!product) {
     res.status(404).json({ error: 'Product not found' });
@@ -88,19 +89,19 @@ export const createProduct = asyncHandler(async (req: Request, res: Response): P
   const inventoryCollection = db.collection(DB_CONFIG.COLLECTIONS.INVENTORY);
   
   const now = new Date();
-  const result = await productsCollection.insertOne({
+  const result = await productsCollection.insertOne(withDemoData(req, {
     ...validatedData,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
   
   // Initialize inventory for new product
-  await inventoryCollection.insertOne({
+  await inventoryCollection.insertOne(withDemoData(req, {
     product_id: result.insertedId,
     quantity_available: 0,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
   
   res.status(201).json({
     id: result.insertedId.toString(),
@@ -123,18 +124,18 @@ export const updateProduct = asyncHandler(async (req: Request, res: Response): P
   const db = getDB();
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
   
-  const product = await productsCollection.findOne({ _id: new ObjectId(id) });
+  const product = await productsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!product) {
     res.status(404).json({ error: 'Product not found' });
     return;
   }
   
   await productsCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { ...validatedData, updatedAt: new Date() } }
   );
   
-  const updatedProduct = await productsCollection.findOne({ _id: new ObjectId(id) });
+  const updatedProduct = await productsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   res.json({
     id: updatedProduct!._id.toString(),
@@ -162,7 +163,7 @@ export const deleteProduct = asyncHandler(async (req: Request, res: Response): P
   const db = getDB();
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
   
-  const product = await productsCollection.findOne({ _id: new ObjectId(id) });
+  const product = await productsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!product) {
     res.status(404).json({ error: 'Product not found' });
     return;
@@ -170,7 +171,7 @@ export const deleteProduct = asyncHandler(async (req: Request, res: Response): P
   
   // Soft delete - set status to inactive
   await productsCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { status: 'inactive', updatedAt: new Date() } }
   );
   

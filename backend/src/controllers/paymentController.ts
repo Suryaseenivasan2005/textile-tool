@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { paymentSchema } from '../validators/paymentValidators';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getPayments = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -24,7 +25,7 @@ export const getPayments = asyncHandler(async (req: Request, res: Response): Pro
     query.payment_mode = payment_mode;
   }
   
-  const payments = await paymentsCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const payments = await paymentsCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
   
   const formattedPayments = payments.map((payment) => ({
     id: payment._id.toString(),
@@ -56,7 +57,7 @@ export const createPayment = asyncHandler(async (req: Request, res: Response): P
   if (reference_type === 'vendor') {
     const vendor = await db
       .collection(DB_CONFIG.COLLECTIONS.VENDORS)
-      .findOne({ _id: new ObjectId(reference_id) });
+      .findOne(withDemoQuery(req, { _id: new ObjectId(reference_id) }));
     if (!vendor) {
       res.status(404).json({ error: 'Vendor not found' });
       return;
@@ -64,7 +65,7 @@ export const createPayment = asyncHandler(async (req: Request, res: Response): P
   } else {
     const customer = await db
       .collection(DB_CONFIG.COLLECTIONS.CUSTOMERS)
-      .findOne({ _id: new ObjectId(reference_id) });
+      .findOne(withDemoQuery(req, { _id: new ObjectId(reference_id) }));
     if (!customer) {
       res.status(404).json({ error: 'Customer not found' });
       return;
@@ -72,7 +73,7 @@ export const createPayment = asyncHandler(async (req: Request, res: Response): P
   }
   
   const now = new Date();
-  const result = await paymentsCollection.insertOne({
+  const result = await paymentsCollection.insertOne(withDemoData(req, {
     reference_type,
     reference_id: new ObjectId(reference_id),
     amount,
@@ -80,7 +81,7 @@ export const createPayment = asyncHandler(async (req: Request, res: Response): P
     payment_date,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
   
   res.status(201).json({
     id: result.insertedId.toString(),
@@ -115,7 +116,7 @@ export const getLedger = asyncHandler(async (req: Request, res: Response): Promi
     type === 'vendor'
       ? await db
           .collection(DB_CONFIG.COLLECTIONS.PURCHASES)
-          .find({ vendor_id: referenceId })
+          .find(withDemoQuery(req, { vendor_id: referenceId }))
           .toArray()
       : [];
   
@@ -123,17 +124,17 @@ export const getLedger = asyncHandler(async (req: Request, res: Response): Promi
     type === 'customer'
       ? await db
           .collection(DB_CONFIG.COLLECTIONS.SALES)
-          .find({ customer_id: referenceId })
+          .find(withDemoQuery(req, { customer_id: referenceId }))
           .toArray()
       : [];
   
   // Get payments
   const payments = await db
     .collection(DB_CONFIG.COLLECTIONS.PAYMENTS)
-    .find({
+    .find(withDemoQuery(req, {
       reference_type: type,
       reference_id: referenceId,
-    })
+    }))
     .toArray();
   
   // Build ledger entries

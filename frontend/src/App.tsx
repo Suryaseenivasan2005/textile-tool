@@ -1,11 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DemoProvider } from './context/DemoContext';
 import { MainLayout } from './components/layout/MainLayout';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
 import { Dashboard } from './pages/Dashboard';
+import { DemoPage } from './pages/demo/DemoPage';
 
 // Import modules
 import Vendors from './pages/vendors';
@@ -30,6 +32,8 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
+      {/* Public routes */}
+      <Route path="/demo" element={<DemoPage />} />
       <Route
         path="/login"
         element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
@@ -231,7 +235,9 @@ function App() {
       }}
     >
       <AuthProvider>
-        <AppRoutes />
+        <DemoProvider>
+          <AppRoutes />
+        </DemoProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -5,6 +5,7 @@ import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { purchaseSchema, purchaseUpdateSchema } from '../validators/purchaseValidators';
 import { CreatePurchaseDTO, UpdatePurchaseDTO } from '../types';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getPurchases = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -28,13 +29,13 @@ export const getPurchases = asyncHandler(async (req: Request, res: Response): Pr
     ];
   }
 
-  const purchases = await purchasesCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const purchases = await purchasesCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
 
   // Populate vendor information
   const formattedPurchases = await Promise.all(
     purchases.map(async (purchase) => {
       const vendor = purchase.vendor_id
-        ? await vendorsCollection.findOne({ _id: purchase.vendor_id })
+        ? await vendorsCollection.findOne(withDemoQuery(req, { _id: purchase.vendor_id }))
         : null;
 
       return {
@@ -76,7 +77,7 @@ export const getPurchase = asyncHandler(async (req: Request, res: Response): Pro
   const vendorsCollection = db.collection(DB_CONFIG.COLLECTIONS.VENDORS);
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
 
-  const purchase = await purchasesCollection.findOne({ _id: new ObjectId(id) });
+  const purchase = await purchasesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
 
   if (!purchase) {
     res.status(404).json({ error: 'Purchase not found' });
@@ -84,17 +85,17 @@ export const getPurchase = asyncHandler(async (req: Request, res: Response): Pro
   }
 
   // Get vendor
-  const vendor = await vendorsCollection.findOne({ _id: purchase.vendor_id });
+  const vendor = await vendorsCollection.findOne(withDemoQuery(req, { _id: purchase.vendor_id }));
 
   // Get items
   const items = await purchaseItemsCollection
-    .find({ purchase_id: new ObjectId(id) })
+    .find(withDemoQuery(req, { purchase_id: new ObjectId(id) }))
     .toArray();
 
   // Populate product information
   const formattedItems = await Promise.all(
     items.map(async (item) => {
-      const product = await productsCollection.findOne({ _id: item.product_id });
+      const product = await productsCollection.findOne(withDemoQuery(req, { _id: item.product_id }));
       return {
         purchase_id: item.purchase_id.toString(),
         product_id: item.product_id.toString(),
@@ -150,7 +151,7 @@ export const createPurchase = asyncHandler(async (req: Request<any, any, CreateP
     return;
   }
 
-  const vendor = await vendorsCollection.findOne({ _id: new ObjectId(vendor_id) });
+  const vendor = await vendorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(vendor_id) }));
   if (!vendor) {
     res.status(404).json({ error: 'Vendor not found' });
     return;
@@ -176,7 +177,7 @@ export const createPurchase = asyncHandler(async (req: Request<any, any, CreateP
     updatedAt: now,
   };
 
-  const purchaseResult = await purchasesCollection.insertOne(purchaseDoc);
+  const purchaseResult = await purchasesCollection.insertOne(withDemoData(req, purchaseDoc));
 
   const purchaseId = purchaseResult.insertedId;
 
@@ -190,18 +191,18 @@ export const createPurchase = asyncHandler(async (req: Request<any, any, CreateP
       const productId = new ObjectId(item.product_id);
 
       // Create purchase item
-      await purchaseItemsCollection.insertOne({
+      await purchaseItemsCollection.insertOne(withDemoData(req, {
         purchase_id: purchaseId,
         product_id: productId,
         quantity: item.quantity,
         rate: item.rate,
         createdAt: now,
         updatedAt: now,
-      });
+      }));
 
       // Update inventory (add stock)
       await inventoryCollection.updateOne(
-        { product_id: productId },
+        withDemoQuery(req, { product_id: productId }),
         {
           $inc: { quantity_available: item.quantity },
           $set: { updatedAt: now },
@@ -246,7 +247,7 @@ export const updatePurchase = asyncHandler(async (req: Request<any, any, UpdateP
   const db = getDB();
   const purchasesCollection = db.collection(DB_CONFIG.COLLECTIONS.PURCHASES);
 
-  const purchase = await purchasesCollection.findOne({ _id: new ObjectId(id) });
+  const purchase = await purchasesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!purchase) {
     res.status(404).json({ error: 'Purchase not found' });
     return;
@@ -269,11 +270,11 @@ export const updatePurchase = asyncHandler(async (req: Request<any, any, UpdateP
   }
 
   await purchasesCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { ...updateData, updatedAt: new Date() } }
   );
 
-  const updatedPurchase = await purchasesCollection.findOne({ _id: new ObjectId(id) });
+  const updatedPurchase = await purchasesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
 
   res.json({
     id: updatedPurchase!._id.toString(),
@@ -307,14 +308,14 @@ export const updatePurchaseStatus = asyncHandler(
     const db = getDB();
     const purchasesCollection = db.collection(DB_CONFIG.COLLECTIONS.PURCHASES);
 
-    const purchase = await purchasesCollection.findOne({ _id: new ObjectId(id) });
+    const purchase = await purchasesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
     if (!purchase) {
       res.status(404).json({ error: 'Purchase not found' });
       return;
     }
 
     await purchasesCollection.updateOne(
-      { _id: new ObjectId(id) },
+      withDemoQuery(req, { _id: new ObjectId(id) }),
       { $set: { payment_status, updatedAt: new Date() } }
     );
 

@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { returnSchema } from '../validators/returnValidators';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getReturns = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -20,7 +21,7 @@ export const getReturns = asyncHandler(async (req: Request, res: Response): Prom
     query.reference_invoice_id = { $regex: search, $options: 'i' };
   }
 
-  const returns = await returnsCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const returns = await returnsCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
 
   const formattedReturns = returns.map((returnItem) => ({
     id: returnItem._id.toString(),
@@ -48,7 +49,7 @@ export const getReturn = asyncHandler(async (req: Request, res: Response): Promi
   const returnItemsCollection = db.collection(DB_CONFIG.COLLECTIONS.RETURN_ITEMS);
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
 
-  const returnItem = await returnsCollection.findOne({ _id: new ObjectId(id) });
+  const returnItem = await returnsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
 
   if (!returnItem) {
     res.status(404).json({ error: 'Return not found' });
@@ -56,12 +57,12 @@ export const getReturn = asyncHandler(async (req: Request, res: Response): Promi
   }
 
   // Get items
-  const items = await returnItemsCollection.find({ return_id: new ObjectId(id) }).toArray();
+  const items = await returnItemsCollection.find(withDemoQuery(req, { return_id: new ObjectId(id) })).toArray();
 
   // Populate product information
   const formattedItems = await Promise.all(
     items.map(async (item) => {
-      const product = await productsCollection.findOne({ _id: item.product_id });
+      const product = await productsCollection.findOne(withDemoQuery(req, { _id: item.product_id }));
       return {
         return_id: item.return_id.toString(),
         product_id: item.product_id.toString(),
@@ -111,13 +112,13 @@ export const createReturn = asyncHandler(async (req: Request, res: Response): Pr
   if (type === 'purchase') {
     const purchase = await db
       .collection(DB_CONFIG.COLLECTIONS.PURCHASES)
-      .findOne({ _id: referenceId });
+      .findOne(withDemoQuery(req, { _id: referenceId }));
     if (!purchase) {
       res.status(404).json({ error: 'Reference purchase not found' });
       return;
     }
   } else {
-    const sale = await db.collection(DB_CONFIG.COLLECTIONS.SALES).findOne({ _id: referenceId });
+    const sale = await db.collection(DB_CONFIG.COLLECTIONS.SALES).findOne(withDemoQuery(req, { _id: referenceId }));
     if (!sale) {
       res.status(404).json({ error: 'Reference sale not found' });
       return;
@@ -132,7 +133,7 @@ export const createReturn = asyncHandler(async (req: Request, res: Response): Pr
       return;
     }
 
-    const product = await productsCollection.findOne({ _id: new ObjectId(item.product_id) });
+    const product = await productsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(item.product_id) }));
     if (!product) {
       res.status(404).json({ error: `Product not found: ${item.product_id}` });
       return;
@@ -144,14 +145,14 @@ export const createReturn = asyncHandler(async (req: Request, res: Response): Pr
   const now = new Date();
 
   // Create return
-  const returnResult = await returnsCollection.insertOne({
+  const returnResult = await returnsCollection.insertOne(withDemoData(req, {
     type,
     reference_invoice_id: referenceId,
     date,
     total_amount: totalAmount,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
 
   const returnId = returnResult.insertedId;
 
@@ -161,13 +162,13 @@ export const createReturn = asyncHandler(async (req: Request, res: Response): Pr
       const productId = new ObjectId(item.product_id);
 
       // Create return item
-      await returnItemsCollection.insertOne({
+      await returnItemsCollection.insertOne(withDemoData(req, {
         return_id: returnId,
         product_id: productId,
         quantity: item.quantity,
         createdAt: now,
         updatedAt: now,
-      });
+      }));
 
       // Update inventory
       // For purchase returns: reduce stock (returning to vendor)
@@ -175,7 +176,7 @@ export const createReturn = asyncHandler(async (req: Request, res: Response): Pr
       const quantityChange = type === 'purchase' ? -item.quantity : item.quantity;
 
       await inventoryCollection.updateOne(
-        { product_id: productId },
+        withDemoQuery(req, { product_id: productId }),
         {
           $inc: { quantity_available: quantityChange },
           $set: { updatedAt: now },

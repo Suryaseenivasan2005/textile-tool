@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { customerSchema, customerUpdateSchema } from '../validators/customerValidators';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getCustomers = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -20,7 +21,7 @@ export const getCustomers = asyncHandler(async (req: Request, res: Response): Pr
     ];
   }
   
-  const customers = await customersCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const customers = await customersCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
   
   const formattedCustomers = customers.map((customer) => ({
     id: customer._id.toString(),
@@ -46,7 +47,7 @@ export const getCustomer = asyncHandler(async (req: Request, res: Response): Pro
   const db = getDB();
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
   
-  const customer = await customersCollection.findOne({ _id: new ObjectId(id) });
+  const customer = await customersCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   if (!customer) {
     res.status(404).json({ error: 'Customer not found' });
@@ -71,11 +72,11 @@ export const createCustomer = asyncHandler(async (req: Request, res: Response): 
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
   
   const now = new Date();
-  const result = await customersCollection.insertOne({
+  const result = await customersCollection.insertOne(withDemoData(req, {
     ...validatedData,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
   
   res.status(201).json({
     id: result.insertedId.toString(),
@@ -98,18 +99,18 @@ export const updateCustomer = asyncHandler(async (req: Request, res: Response): 
   const db = getDB();
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
   
-  const customer = await customersCollection.findOne({ _id: new ObjectId(id) });
+  const customer = await customersCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!customer) {
     res.status(404).json({ error: 'Customer not found' });
     return;
   }
   
   await customersCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { ...validatedData, updatedAt: new Date() } }
   );
   
-  const updatedCustomer = await customersCollection.findOne({ _id: new ObjectId(id) });
+  const updatedCustomer = await customersCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   res.json({
     id: updatedCustomer!._id.toString(),
@@ -133,13 +134,13 @@ export const deleteCustomer = asyncHandler(async (req: Request, res: Response): 
   const db = getDB();
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
   
-  const customer = await customersCollection.findOne({ _id: new ObjectId(id) });
+  const customer = await customersCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!customer) {
     res.status(404).json({ error: 'Customer not found' });
     return;
   }
   
-  await customersCollection.deleteOne({ _id: new ObjectId(id) });
+  await customersCollection.deleteOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   res.json({ message: 'Customer deleted successfully' });
 });

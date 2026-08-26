@@ -5,6 +5,7 @@ import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { saleSchema, saleUpdateSchema } from '../validators/saleValidators';
 import { CreateSaleDTO, UpdateSaleDTO } from '../types';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getSales = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -28,13 +29,13 @@ export const getSales = asyncHandler(async (req: Request, res: Response): Promis
     ];
   }
 
-  const sales = await salesCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const sales = await salesCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
 
   // Populate customer information
   const formattedSales = await Promise.all(
     sales.map(async (sale) => {
       const customer = sale.customer_id
-        ? await customersCollection.findOne({ _id: sale.customer_id })
+        ? await customersCollection.findOne(withDemoQuery(req, { _id: sale.customer_id }))
         : null;
 
       return {
@@ -77,7 +78,7 @@ export const getSale = asyncHandler(async (req: Request, res: Response): Promise
   const customersCollection = db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS);
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
 
-  const sale = await salesCollection.findOne({ _id: new ObjectId(id) });
+  const sale = await salesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
 
   if (!sale) {
     res.status(404).json({ error: 'Sale not found' });
@@ -86,16 +87,16 @@ export const getSale = asyncHandler(async (req: Request, res: Response): Promise
 
   // Get customer
   const customer = sale.customer_id
-    ? await customersCollection.findOne({ _id: sale.customer_id })
+    ? await customersCollection.findOne(withDemoQuery(req, { _id: sale.customer_id }))
     : null;
 
   // Get items
-  const items = await saleItemsCollection.find({ sale_id: new ObjectId(id) }).toArray();
+  const items = await saleItemsCollection.find(withDemoQuery(req, { sale_id: new ObjectId(id) })).toArray();
 
   // Populate product information
   const formattedItems = await Promise.all(
     items.map(async (item) => {
-      const product = await productsCollection.findOne({ _id: item.product_id });
+      const product = await productsCollection.findOne(withDemoQuery(req, { _id: item.product_id }));
       return {
         sale_id: item.sale_id.toString(),
         product_id: item.product_id.toString(),
@@ -153,7 +154,7 @@ export const createSale = asyncHandler(async (req: Request<any, any, CreateSaleD
       return;
     }
 
-    const customer = await customersCollection.findOne({ _id: new ObjectId(customer_id) });
+    const customer = await customersCollection.findOne(withDemoQuery(req, { _id: new ObjectId(customer_id) }));
     if (!customer) {
       res.status(404).json({ error: 'Customer not found' });
       return;
@@ -168,7 +169,7 @@ export const createSale = asyncHandler(async (req: Request<any, any, CreateSaleD
     }
 
     const productId = new ObjectId(item.product_id);
-    const inventory = await inventoryCollection.findOne({ product_id: productId });
+    const inventory = await inventoryCollection.findOne(withDemoQuery(req, { product_id: productId }));
 
     if (!inventory || inventory.quantity_available < item.quantity) {
       res.status(400).json({
@@ -201,7 +202,7 @@ export const createSale = asyncHandler(async (req: Request<any, any, CreateSaleD
     updatedAt: now,
   };
 
-  const saleResult = await salesCollection.insertOne(saleDoc);
+  const saleResult = await salesCollection.insertOne(withDemoData(req, saleDoc));
 
   const saleId = saleResult.insertedId;
 
@@ -211,18 +212,18 @@ export const createSale = asyncHandler(async (req: Request<any, any, CreateSaleD
       const productId = new ObjectId(item.product_id);
 
       // Create sale item
-      await saleItemsCollection.insertOne({
+      await saleItemsCollection.insertOne(withDemoData(req, {
         sale_id: saleId,
         product_id: productId,
         quantity: item.quantity,
         rate: item.rate,
         createdAt: now,
         updatedAt: now,
-      });
+      }));
 
       // Update inventory (reduce stock)
       await inventoryCollection.updateOne(
-        { product_id: productId },
+        withDemoQuery(req, { product_id: productId }),
         {
           $inc: { quantity_available: -item.quantity },
           $set: { updatedAt: now },
@@ -267,7 +268,7 @@ export const updateSale = asyncHandler(async (req: Request<any, any, UpdateSaleD
   const db = getDB();
   const salesCollection = db.collection(DB_CONFIG.COLLECTIONS.SALES);
 
-  const sale = await salesCollection.findOne({ _id: new ObjectId(id) });
+  const sale = await salesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!sale) {
     res.status(404).json({ error: 'Sale not found' });
     return;
@@ -306,11 +307,11 @@ export const updateSale = asyncHandler(async (req: Request<any, any, UpdateSaleD
   }
 
   await salesCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { ...updateData, updatedAt: new Date() } }
   );
 
-  const updatedSale = await salesCollection.findOne({ _id: new ObjectId(id) });
+  const updatedSale = await salesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
 
   res.json({
     id: updatedSale!._id.toString(),

@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { categorySchema, categoryUpdateSchema } from '../validators/categoryValidators';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getCategories = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -23,7 +24,7 @@ export const getCategories = asyncHandler(async (req: Request, res: Response): P
     ];
   }
   
-  const categories = await categoriesCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const categories = await categoriesCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
   
   const formattedCategories = categories.map((category) => ({
     id: category._id.toString(),
@@ -48,7 +49,7 @@ export const getCategory = asyncHandler(async (req: Request, res: Response): Pro
   const db = getDB();
   const categoriesCollection = db.collection(DB_CONFIG.COLLECTIONS.CATEGORIES);
   
-  const category = await categoriesCollection.findOne({ _id: new ObjectId(id) });
+  const category = await categoriesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   if (!category) {
     res.status(404).json({ error: 'Category not found' });
@@ -72,11 +73,11 @@ export const createCategory = asyncHandler(async (req: Request, res: Response): 
   const categoriesCollection = db.collection(DB_CONFIG.COLLECTIONS.CATEGORIES);
   
   const now = new Date();
-  const result = await categoriesCollection.insertOne({
+  const result = await categoriesCollection.insertOne(withDemoData(req, {
     ...validatedData,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
   
   res.status(201).json({
     id: result.insertedId.toString(),
@@ -99,18 +100,18 @@ export const updateCategory = asyncHandler(async (req: Request, res: Response): 
   const db = getDB();
   const categoriesCollection = db.collection(DB_CONFIG.COLLECTIONS.CATEGORIES);
   
-  const category = await categoriesCollection.findOne({ _id: new ObjectId(id) });
+  const category = await categoriesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!category) {
     res.status(404).json({ error: 'Category not found' });
     return;
   }
   
   await categoriesCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { ...validatedData, updatedAt: new Date() } }
   );
   
-  const updatedCategory = await categoriesCollection.findOne({ _id: new ObjectId(id) });
+  const updatedCategory = await categoriesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   res.json({
     id: updatedCategory!._id.toString(),
@@ -133,7 +134,7 @@ export const deleteCategory = asyncHandler(async (req: Request, res: Response): 
   const db = getDB();
   const categoriesCollection = db.collection(DB_CONFIG.COLLECTIONS.CATEGORIES);
   
-  const category = await categoriesCollection.findOne({ _id: new ObjectId(id) });
+  const category = await categoriesCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!category) {
     res.status(404).json({ error: 'Category not found' });
     return;
@@ -141,7 +142,7 @@ export const deleteCategory = asyncHandler(async (req: Request, res: Response): 
   
   // Soft delete - set status to inactive
   await categoriesCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { status: 'inactive', updatedAt: new Date() } }
   );
   

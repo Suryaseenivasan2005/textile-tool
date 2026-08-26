@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
+import { withDemoQuery } from '../utils/demo';
 
 export const getInventory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -20,12 +21,12 @@ export const getInventory = asyncHandler(async (req: Request, res: Response): Pr
     query.product_id = new ObjectId(product_id as string);
   }
   
-  const inventory = await inventoryCollection.find(query).toArray();
+  const inventory = await inventoryCollection.find(withDemoQuery(req, query)).toArray();
   
   // Populate product information
   const formattedInventory = await Promise.all(
     inventory.map(async (item) => {
-      const product = await productsCollection.findOne({ _id: item.product_id });
+      const product = await productsCollection.findOne(withDemoQuery(req, { _id: item.product_id }));
       return {
         product_id: item.product_id.toString(),
         quantity_available: item.quantity_available || 0,
@@ -69,7 +70,7 @@ export const adjustInventory = asyncHandler(async (req: Request, res: Response):
   const inventoryCollection = db.collection(DB_CONFIG.COLLECTIONS.INVENTORY);
   const productsCollection = db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS);
   
-  const product = await productsCollection.findOne({ _id: new ObjectId(product_id) });
+  const product = await productsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(product_id) }));
   if (!product) {
     res.status(404).json({ error: 'Product not found' });
     return;
@@ -79,7 +80,7 @@ export const adjustInventory = asyncHandler(async (req: Request, res: Response):
   const now = new Date();
   
   // Get current inventory
-  const currentInventory = await inventoryCollection.findOne({ product_id: productId });
+  const currentInventory = await inventoryCollection.findOne(withDemoQuery(req, { product_id: productId }));
   const currentQuantity = currentInventory?.quantity_available || 0;
   
   // Calculate new quantity
@@ -103,7 +104,7 @@ export const adjustInventory = asyncHandler(async (req: Request, res: Response):
   
   // Update inventory
   await inventoryCollection.updateOne(
-    { product_id: productId },
+    withDemoQuery(req, { product_id: productId }),
     {
       $set: {
         quantity_available: newQuantity,

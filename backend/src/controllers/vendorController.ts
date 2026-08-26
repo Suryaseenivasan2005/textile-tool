@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { vendorSchema, vendorUpdateSchema } from '../validators/vendorValidators';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getVendors = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -24,7 +25,7 @@ export const getVendors = asyncHandler(async (req: Request, res: Response): Prom
     ];
   }
   
-  const vendors = await vendorsCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const vendors = await vendorsCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
   
   const formattedVendors = vendors.map((vendor) => ({
     id: vendor._id.toString(),
@@ -51,7 +52,7 @@ export const getVendor = asyncHandler(async (req: Request, res: Response): Promi
   const db = getDB();
   const vendorsCollection = db.collection(DB_CONFIG.COLLECTIONS.VENDORS);
   
-  const vendor = await vendorsCollection.findOne({ _id: new ObjectId(id) });
+  const vendor = await vendorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   if (!vendor) {
     res.status(404).json({ error: 'Vendor not found' });
@@ -77,11 +78,11 @@ export const createVendor = asyncHandler(async (req: Request, res: Response): Pr
   const vendorsCollection = db.collection(DB_CONFIG.COLLECTIONS.VENDORS);
   
   const now = new Date();
-  const result = await vendorsCollection.insertOne({
+  const result = await vendorsCollection.insertOne(withDemoData(req, {
     ...validatedData,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
   
   res.status(201).json({
     id: result.insertedId.toString(),
@@ -104,18 +105,18 @@ export const updateVendor = asyncHandler(async (req: Request, res: Response): Pr
   const db = getDB();
   const vendorsCollection = db.collection(DB_CONFIG.COLLECTIONS.VENDORS);
   
-  const vendor = await vendorsCollection.findOne({ _id: new ObjectId(id) });
+  const vendor = await vendorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!vendor) {
     res.status(404).json({ error: 'Vendor not found' });
     return;
   }
   
   await vendorsCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { ...validatedData, updatedAt: new Date() } }
   );
   
-  const updatedVendor = await vendorsCollection.findOne({ _id: new ObjectId(id) });
+  const updatedVendor = await vendorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   res.json({
     id: updatedVendor!._id.toString(),
@@ -141,7 +142,7 @@ export const deleteVendor = asyncHandler(async (req: Request, res: Response): Pr
   const vendorsCollection = db.collection(DB_CONFIG.COLLECTIONS.VENDORS);
   
   // Check if vendor exists
-  const vendor = await vendorsCollection.findOne({ _id: new ObjectId(id) });
+  const vendor = await vendorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!vendor) {
     res.status(404).json({ error: 'Vendor not found' });
     return;
@@ -149,7 +150,7 @@ export const deleteVendor = asyncHandler(async (req: Request, res: Response): Pr
   
   // Soft delete - set status to inactive
   await vendorsCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { status: 'inactive', updatedAt: new Date() } }
   );
   

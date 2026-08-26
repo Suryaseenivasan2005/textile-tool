@@ -67,13 +67,18 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const token = this.getAuthToken();
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Inject demo mode header when in demo session
+    if (localStorage.getItem(STORAGE_KEYS.IS_DEMO) === 'true') {
+      headers['x-demo-mode'] = 'true';
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -422,6 +427,15 @@ class ApiService {
       method: 'PUT',
       body: JSON.stringify(data),
     });
+  }
+
+  // Demo
+  async startDemo(): Promise<{ message: string; token: string; user: { id: string; name: string; mobile: string } }> {
+    return this.request('/demo/start', { method: 'POST' });
+  }
+
+  async resetDemo(): Promise<{ message: string }> {
+    return this.request('/demo/reset', { method: 'POST' });
   }
 }
 

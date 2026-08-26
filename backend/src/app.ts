@@ -14,6 +14,8 @@ import paymentRoutes from './routes/paymentRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 import settingsRoutes from './routes/settingsRoutes';
 import seedRoutes from './routes/seedRoutes';
+import demoRoutes from './routes/demoRoutes';
+import { demoMiddleware } from './middleware/demoMiddleware';
 import { errorHandler } from './middleware/errorHandler';
 import { getDB } from './config/database';
 import { DB_CONFIG } from './constants';
@@ -103,6 +105,9 @@ app.get('/health', async (req, res) => {
 });
 
 // Routes
+app.use('/api/demo', demoRoutes);
+app.use('/api', demoMiddleware);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/seed', seedRoutes); // Database seeding endpoints
 app.use('/api/vendors', vendorRoutes);
@@ -117,6 +122,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/settings', settingsRoutes);
+
 
 // 404 handler
 app.use((req, res) => {

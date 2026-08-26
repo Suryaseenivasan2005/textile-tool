@@ -1,9 +1,13 @@
-// API Routes
 export const API_ROUTES = {
   AUTH: {
     REGISTER: '/api/auth/register',
     LOGIN: '/api/auth/login',
     PROFILE: '/api/auth/profile',
+  },
+  DEMO: {
+    START: '/api/demo/start',
+    RESET: '/api/demo/reset',
+    STATUS: '/api/demo/status',
   },
 } as const;
 
@@ -43,4 +47,7 @@ export const DB_CONFIG = {
     SETTINGS: 'settings',
   },
 } as const;
+
+// Demo Mode
+export const DEMO_USER_ID = 'demo-user-fixed-id';
 

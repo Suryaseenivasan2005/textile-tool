@@ -24,6 +24,7 @@ export const ROUTES = {
   PAYMENTS: '/payments',
   REPORTS: '/reports',
   SETTINGS: '/settings',
+  DEMO: '/demo',
 } as const;
 
 // Validation
@@ -37,6 +38,7 @@ export const VALIDATION = {
 export const STORAGE_KEYS = {
   USER: 'user',
   TOKEN: 'token',
+  IS_DEMO: 'isDemo',
 } as const;
 
 // Status

@@ -2,19 +2,21 @@ import { Request, Response } from 'express';
 import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
+import { withDemoQuery } from '../utils/demo';
 
 export const getDashboardStats = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
   
   // Get counts
-  const productsCount = await db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS).countDocuments({ status: 'active' });
-  const vendorsCount = await db.collection(DB_CONFIG.COLLECTIONS.VENDORS).countDocuments({ status: 'active' });
-  const customersCount = await db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS).countDocuments();
+  const productsCount = await db.collection(DB_CONFIG.COLLECTIONS.PRODUCTS).countDocuments(withDemoQuery(req, { status: 'active' }));
+  const vendorsCount = await db.collection(DB_CONFIG.COLLECTIONS.VENDORS).countDocuments(withDemoQuery(req, { status: 'active' }));
+  const customersCount = await db.collection(DB_CONFIG.COLLECTIONS.CUSTOMERS).countDocuments(withDemoQuery(req, {}));
   
   // Get purchase totals
   const purchases = await db
     .collection(DB_CONFIG.COLLECTIONS.PURCHASES)
     .aggregate([
+      { $match: withDemoQuery(req, {}) },
       {
         $group: {
           _id: null,
@@ -29,6 +31,7 @@ export const getDashboardStats = asyncHandler(async (req: Request, res: Response
   const sales = await db
     .collection(DB_CONFIG.COLLECTIONS.SALES)
     .aggregate([
+      { $match: withDemoQuery(req, {}) },
       {
         $group: {
           _id: null,

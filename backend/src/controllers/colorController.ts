@@ -4,6 +4,7 @@ import { getDB } from '../config/database';
 import { DB_CONFIG } from '../constants';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { colorSchema, colorUpdateSchema } from '../validators/colorValidators';
+import { withDemoQuery, withDemoData } from '../utils/demo';
 
 export const getColors = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const db = getDB();
@@ -20,7 +21,7 @@ export const getColors = asyncHandler(async (req: Request, res: Response): Promi
     query.name = { $regex: search, $options: 'i' };
   }
   
-  const colors = await colorsCollection.find(query).sort({ createdAt: -1 }).toArray();
+  const colors = await colorsCollection.find(withDemoQuery(req, query)).sort({ createdAt: -1 }).toArray();
   
   const formattedColors = colors.map((color) => ({
     id: color._id.toString(),
@@ -45,7 +46,7 @@ export const getColor = asyncHandler(async (req: Request, res: Response): Promis
   const db = getDB();
   const colorsCollection = db.collection(DB_CONFIG.COLLECTIONS.COLORS);
   
-  const color = await colorsCollection.findOne({ _id: new ObjectId(id) });
+  const color = await colorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   if (!color) {
     res.status(404).json({ error: 'Color not found' });
@@ -69,11 +70,11 @@ export const createColor = asyncHandler(async (req: Request, res: Response): Pro
   const colorsCollection = db.collection(DB_CONFIG.COLLECTIONS.COLORS);
   
   const now = new Date();
-  const result = await colorsCollection.insertOne({
+  const result = await colorsCollection.insertOne(withDemoData(req, {
     ...validatedData,
     createdAt: now,
     updatedAt: now,
-  });
+  }));
   
   res.status(201).json({
     id: result.insertedId.toString(),
@@ -96,18 +97,18 @@ export const updateColor = asyncHandler(async (req: Request, res: Response): Pro
   const db = getDB();
   const colorsCollection = db.collection(DB_CONFIG.COLLECTIONS.COLORS);
   
-  const color = await colorsCollection.findOne({ _id: new ObjectId(id) });
+  const color = await colorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!color) {
     res.status(404).json({ error: 'Color not found' });
     return;
   }
   
   await colorsCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { ...validatedData, updatedAt: new Date() } }
   );
   
-  const updatedColor = await colorsCollection.findOne({ _id: new ObjectId(id) });
+  const updatedColor = await colorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   
   res.json({
     id: updatedColor!._id.toString(),
@@ -130,7 +131,7 @@ export const deleteColor = asyncHandler(async (req: Request, res: Response): Pro
   const db = getDB();
   const colorsCollection = db.collection(DB_CONFIG.COLLECTIONS.COLORS);
   
-  const color = await colorsCollection.findOne({ _id: new ObjectId(id) });
+  const color = await colorsCollection.findOne(withDemoQuery(req, { _id: new ObjectId(id) }));
   if (!color) {
     res.status(404).json({ error: 'Color not found' });
     return;
@@ -138,7 +139,7 @@ export const deleteColor = asyncHandler(async (req: Request, res: Response): Pro
   
   // Soft delete - set status to inactive
   await colorsCollection.updateOne(
-    { _id: new ObjectId(id) },
+    withDemoQuery(req, { _id: new ObjectId(id) }),
     { $set: { status: 'inactive', updatedAt: new Date() } }
   );
   
