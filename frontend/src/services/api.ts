@@ -429,6 +429,11 @@ class ApiService {
     });
   }
 
+  // Health Check
+  async checkHealth(): Promise<{ status: string; message?: string }> {
+    return this.request('/health');
+  }
+
   // Demo
   async startDemo(): Promise<{ message: string; token: string; user: { id: string; name: string; mobile: string } }> {
     return this.request('/demo/start', { method: 'POST' });

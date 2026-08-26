@@ -11,6 +11,7 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setStatusMsg('');
 
     // Validate mobile number
     if (!validateMobile(mobile)) {
@@ -36,13 +38,20 @@ export const Login: React.FC = () => {
 
     setIsLoading(true);
 
+    // If cold start takes longer than 2 seconds, inform user
+    const coldStartTimer = setTimeout(() => {
+      setStatusMsg('⚡ Waking up backend server from cold start... Please wait a moment!');
+    }, 2000);
+
     try {
       await login(mobile, password);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Invalid mobile number or password');
     } finally {
+      clearTimeout(coldStartTimer);
       setIsLoading(false);
+      setStatusMsg('');
     }
   };
 
@@ -108,6 +117,12 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
+          {statusMsg && isLoading && (
+            <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg text-xs font-medium animate-pulse">
+              {statusMsg}
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
               {error}
@@ -127,4 +142,3 @@ export const Login: React.FC = () => {
     </div>
   );
 };
-

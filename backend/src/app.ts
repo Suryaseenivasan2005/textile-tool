@@ -72,7 +72,7 @@ app.get('/', (req, res) => {
 app.get('/favicon.ico', (req, res) => res.status(204));
 
 // Enhanced Health check endpoint
-app.get('/health', async (req, res) => {
+const healthHandler = async (req: any, res: any) => {
     try {
         const db = getDB();
         const usersCollection = db.collection(DB_CONFIG.COLLECTIONS.USERS);
@@ -102,7 +102,11 @@ app.get('/health', async (req, res) => {
             }
         });
     }
-});
+};
+
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
+
 
 // Routes
 app.use('/api/demo', demoRoutes);

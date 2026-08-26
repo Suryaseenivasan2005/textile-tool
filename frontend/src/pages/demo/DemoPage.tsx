@@ -4,16 +4,27 @@ import { useDemo } from '../../context/DemoContext';
 export const DemoPage: React.FC = () => {
   const { startDemo } = useDemo();
   const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState('');
   const [error, setError] = useState('');
 
   const handleStart = async () => {
     setLoading(true);
     setError('');
+    setStatusMsg('Connecting to server...');
+
+    // If cold start takes more than 2 seconds, show friendly notice
+    const coldStartTimer = setTimeout(() => {
+      setStatusMsg('⚡ Waking up backend server from cold start... Please wait a moment!');
+    }, 2000);
+
     try {
       await startDemo();
     } catch (err: any) {
       setError(err.message || 'Failed to start demo. Please try again.');
       setLoading(false);
+    } finally {
+      clearTimeout(coldStartTimer);
+      setStatusMsg('');
     }
   };
 
@@ -55,6 +66,12 @@ export const DemoPage: React.FC = () => {
 
         {/* CTA */}
         <div className="text-center">
+          {statusMsg && loading && (
+            <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg px-4 py-2.5 mb-4 text-xs font-medium inline-block w-full max-w-md animate-pulse">
+              {statusMsg}
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-2.5 mb-4 text-xs font-medium inline-block w-full max-w-md">
               {error}
