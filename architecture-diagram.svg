@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" font-family="system-ui, -apple-system, 'Segoe UI', Inter, sans-serif">
+
+  <!-- Defs: arrowhead marker -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#3B82F6"/>
+    </marker>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- NODE 1 — React + Vite Frontend (Vercel)                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <rect x="30" y="100" width="195" height="300" rx="8" fill="#0F1520" stroke="#2A3A52" stroke-width="1"/>
+
+  <!-- icon area -->
+  <rect x="30" y="100" width="195" height="46" rx="8" fill="#0F1520" stroke="#2A3A52" stroke-width="1"/>
+  <rect x="30" y="130" width="195" height="16" fill="#0F1520"/>
+
+  <!-- React icon (simplified) -->
+  <circle cx="127" cy="121" r="5" fill="none" stroke="#3B82F6" stroke-width="1.5"/>
+  <ellipse cx="127" cy="121" rx="14" ry="5.5" fill="none" stroke="#3B82F6" stroke-width="1.5"/>
+  <ellipse cx="127" cy="121" rx="14" ry="5.5" fill="none" stroke="#3B82F6" stroke-width="1.5" transform="rotate(60 127 121)"/>
+  <ellipse cx="127" cy="121" rx="14" ry="5.5" fill="none" stroke="#3B82F6" stroke-width="1.5" transform="rotate(120 127 121)"/>
+
+  <text x="127" y="155" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">React + Vite</text>
+  <text x="127" y="170" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">Frontend</text>
+
+  <line x1="50" y1="183" x2="205" y2="183" stroke="#2A3A52" stroke-width="1"/>
+
+  <!-- sub-items -->
+  <text x="47" y="201" fill="#E5E7EB" font-size="10.5">• React Router v6 (BrowserRouter)</text>
+  <text x="47" y="218" fill="#E5E7EB" font-size="10.5">• AuthContext + DemoContext</text>
+  <text x="47" y="235" fill="#E5E7EB" font-size="10.5">• React Query (data fetching)</text>
+  <text x="47" y="252" fill="#E5E7EB" font-size="10.5">• React Hook Form + Zod</text>
+  <text x="47" y="269" fill="#E5E7EB" font-size="10.5">• Tailwind CSS + lucide-react</text>
+  <text x="47" y="286" fill="#E5E7EB" font-size="10.5">• xlsx (export reports)</text>
+  <text x="47" y="313" fill="#E5E7EB" font-size="10.5">• Pages: Dashboard, Sales,</text>
+  <text x="47" y="328" fill="#E5E7EB" font-size="10.5">  Purchases, Inventory,</text>
+  <text x="47" y="343" fill="#E5E7EB" font-size="10.5">  Returns, Payments, etc.</text>
+
+  <!-- deploy badge -->
+  <rect x="56" y="368" width="110" height="20" rx="4" fill="#172035" stroke="#2A3A52" stroke-width="1"/>
+  <text x="111" y="381" text-anchor="middle" fill="#3B82F6" font-size="9.5" font-weight="600">▲ Vercel (vercel.json)</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ARROW 1 → 2  (REST / Bearer JWT + x-demo-mode header)     -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <line x1="225" y1="250" x2="325" y2="250" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="232" y="232" width="86" height="15" rx="3" fill="#0F1520"/>
+  <text x="275" y="242.5" text-anchor="middle" fill="#3B82F6" font-size="9" font-weight="600">REST / fetch()</text>
+  <rect x="232" y="249" width="86" height="15" rx="3" fill="#0F1520"/>
+  <text x="275" y="259.5" text-anchor="middle" fill="#E5E7EB" font-size="8.5">Bearer JWT header</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- NODE 2 — Express API (Render)                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <rect x="330" y="100" width="205" height="300" rx="8" fill="#0F1520" stroke="#2A3A52" stroke-width="1"/>
+  <rect x="330" y="100" width="205" height="46" rx="8" fill="#0F1520" stroke="#2A3A52" stroke-width="1"/>
+  <rect x="330" y="130" width="205" height="16" fill="#0F1520"/>
+
+  <!-- Express icon (E) -->
+  <text x="432" y="126" text-anchor="middle" fill="#3B82F6" font-size="20" font-weight="800">E</text>
+
+  <text x="432" y="155" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">Express API</text>
+  <text x="432" y="170" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">Server (Node.js)</text>
+
+  <line x1="350" y1="183" x2="515" y2="183" stroke="#2A3A52" stroke-width="1"/>
+
+  <text x="347" y="201" fill="#E5E7EB" font-size="10.5">• TypeScript / tsx watch</text>
+  <text x="347" y="218" fill="#E5E7EB" font-size="10.5">• CORS (Vercel origin whitelist)</text>
+  <text x="347" y="235" fill="#E5E7EB" font-size="10.5">• demoMiddleware (x-demo-mode)</text>
+  <text x="347" y="252" fill="#E5E7EB" font-size="10.5">• authenticate (JWT verify)</text>
+  <text x="347" y="269" fill="#E5E7EB" font-size="10.5">• asyncHandler + errorHandler</text>
+  <text x="347" y="286" fill="#E5E7EB" font-size="10.5">• Zod validators on every route</text>
+  <text x="347" y="313" fill="#E5E7EB" font-size="10.5">• Routes: /auth /vendors</text>
+  <text x="347" y="328" fill="#E5E7EB" font-size="10.5">  /products /purchases /sales</text>
+  <text x="347" y="343" fill="#E5E7EB" font-size="10.5">  /returns /payments /inventory</text>
+  <text x="347" y="358" fill="#E5E7EB" font-size="10.5">  /categories /colors /dashboard</text>
+
+  <!-- deploy badge -->
+  <rect x="359" y="374" width="146" height="20" rx="4" fill="#172035" stroke="#2A3A52" stroke-width="1"/>
+  <text x="432" y="387" text-anchor="middle" fill="#3B82F6" font-size="9.5" font-weight="600">⬡ Render.com (PORT env)</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ARROW 2 → 3  (Business logic / controller layer)          -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <line x1="535" y1="250" x2="625" y2="250" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="537" y="235" width="82" height="15" rx="3" fill="#0F1520"/>
+  <text x="578" y="245.5" text-anchor="middle" fill="#3B82F6" font-size="9" font-weight="600">controllers/</text>
+  <rect x="537" y="252" width="82" height="15" rx="3" fill="#0F1520"/>
+  <text x="578" y="262.5" text-anchor="middle" fill="#E5E7EB" font-size="8.5">bcryptjs · JWT</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- NODE 3 — Business Logic / Controllers                      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <rect x="630" y="100" width="200" height="300" rx="8" fill="#0F1520" stroke="#3B82F6" stroke-width="1.5"/>
+  <rect x="630" y="100" width="200" height="46" rx="8" fill="#0F1520" stroke="#3B82F6" stroke-width="1.5"/>
+  <rect x="630" y="130" width="200" height="16" fill="#0F1520"/>
+
+  <!-- gear icon (core processing accent) -->
+  <circle cx="730" cy="119" r="8" fill="none" stroke="#3B82F6" stroke-width="1.5"/>
+  <circle cx="730" cy="119" r="3.5" fill="#3B82F6"/>
+  <line x1="730" y1="108" x2="730" y2="111" stroke="#3B82F6" stroke-width="2"/>
+  <line x1="730" y1="127" x2="730" y2="130" stroke="#3B82F6" stroke-width="2"/>
+  <line x1="719" y1="119" x2="722" y2="119" stroke="#3B82F6" stroke-width="2"/>
+  <line x1="738" y1="119" x2="741" y2="119" stroke="#3B82F6" stroke-width="2"/>
+  <line x1="722" y1="111" x2="724" y2="113" stroke="#3B82F6" stroke-width="2"/>
+  <line x1="736" y1="125" x2="738" y2="127" stroke="#3B82F6" stroke-width="2"/>
+
+  <text x="730" y="155" text-anchor="middle" fill="#3B82F6" font-size="12.5" font-weight="700">Business Logic</text>
+  <text x="730" y="170" text-anchor="middle" fill="#3B82F6" font-size="12.5" font-weight="700">Controllers</text>
+
+  <line x1="648" y1="183" x2="812" y2="183" stroke="#2A3A52" stroke-width="1"/>
+
+  <text x="647" y="201" fill="#E5E7EB" font-size="10.5">• authController (bcrypt+JWT)</text>
+  <text x="647" y="218" fill="#E5E7EB" font-size="10.5">• saleController</text>
+  <text x="647" y="234" fill="#E5E7EB" font-size="10.5">    → validate inventory</text>
+  <text x="647" y="250" fill="#E5E7EB" font-size="10.5">    → calc GST (18%)</text>
+  <text x="647" y="266" fill="#E5E7EB" font-size="10.5">    → insert sale + items</text>
+  <text x="647" y="282" fill="#E5E7EB" font-size="10.5">    → decrement inventory</text>
+  <text x="647" y="298" fill="#E5E7EB" font-size="10.5">• purchaseController</text>
+  <text x="647" y="314" fill="#E5E7EB" font-size="10.5">    → add stock to inventory</text>
+  <text x="647" y="330" fill="#E5E7EB" font-size="10.5">• returnController, paymentCtrl</text>
+  <text x="647" y="346" fill="#E5E7EB" font-size="10.5">• dashboardController (stats)</text>
+  <text x="647" y="362" fill="#E5E7EB" font-size="10.5">• demoController (demo data)</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ARROW 3 → 4  (MongoDB driver native calls)                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <line x1="830" y1="250" x2="920" y2="250" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="831" y="235" width="83" height="15" rx="3" fill="#0F1520"/>
+  <text x="872" y="245.5" text-anchor="middle" fill="#3B82F6" font-size="9" font-weight="600">mongodb driver</text>
+  <rect x="831" y="252" width="83" height="15" rx="3" fill="#0F1520"/>
+  <text x="872" y="262.5" text-anchor="middle" fill="#E5E7EB" font-size="8.5">getDB() · TLS</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- NODE 4 — MongoDB Atlas                                      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <rect x="925" y="100" width="240" height="300" rx="8" fill="#0F1520" stroke="#2A3A52" stroke-width="1"/>
+  <rect x="925" y="100" width="240" height="46" rx="8" fill="#0F1520" stroke="#2A3A52" stroke-width="1"/>
+  <rect x="925" y="130" width="240" height="16" fill="#0F1520"/>
+
+  <!-- MongoDB leaf icon -->
+  <ellipse cx="1045" cy="120" rx="6" ry="10" fill="none" stroke="#3B82F6" stroke-width="1.5"/>
+  <line x1="1045" y1="110" x2="1045" y2="130" stroke="#3B82F6" stroke-width="1.5"/>
+  <path d="M1039,116 Q1045,108 1051,116" fill="none" stroke="#3B82F6" stroke-width="1.5"/>
+
+  <text x="1045" y="155" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">MongoDB Atlas</text>
+  <text x="1045" y="170" text-anchor="middle" fill="#FFFFFF" font-size="12.5" font-weight="700">(Cloud Database)</text>
+
+  <line x1="943" y1="183" x2="1147" y2="183" stroke="#2A3A52" stroke-width="1"/>
+
+  <text x="942" y="201" fill="#E5E7EB" font-size="10.5">• DB: tex-tool</text>
+  <text x="942" y="218" fill="#E5E7EB" font-size="10.5">• Collections:</text>
+  <text x="942" y="234" fill="#E5E7EB" font-size="10.5">    users · products · categories</text>
+  <text x="942" y="250" fill="#E5E7EB" font-size="10.5">    colors · vendors · customers</text>
+  <text x="942" y="266" fill="#E5E7EB" font-size="10.5">    purchases · purchase_items</text>
+  <text x="942" y="282" fill="#E5E7EB" font-size="10.5">    sales · sale_items</text>
+  <text x="942" y="298" fill="#E5E7EB" font-size="10.5">    returns · inventory</text>
+  <text x="942" y="314" fill="#E5E7EB" font-size="10.5">    payments · settings</text>
+  <text x="942" y="330" fill="#E5E7EB" font-size="10.5">• Native MongoDB driver v6</text>
+  <text x="942" y="346" fill="#E5E7EB" font-size="10.5">  (no ORM — raw collection API)</text>
+  <text x="942" y="362" fill="#E5E7EB" font-size="10.5">• Cluster: cluster0.hgx6tsx</text>
+
+  <!-- deploy badge -->
+  <rect x="973" y="374" width="144" height="20" rx="4" fill="#172035" stroke="#2A3A52" stroke-width="1"/>
+  <text x="1045" y="387" text-anchor="middle" fill="#3B82F6" font-size="9.5" font-weight="600">☁ Atlas Free Tier (SRV)</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Section label strip                                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <text x="127" y="92" text-anchor="middle" fill="#6B7280" font-size="9" font-weight="500" letter-spacing="1">FRONTEND</text>
+  <text x="432" y="92" text-anchor="middle" fill="#6B7280" font-size="9" font-weight="500" letter-spacing="1">API GATEWAY</text>
+  <text x="730" y="92" text-anchor="middle" fill="#3B82F6" font-size="9" font-weight="600" letter-spacing="1">CORE PROCESSING ★</text>
+  <text x="1045" y="92" text-anchor="middle" fill="#6B7280" font-size="9" font-weight="500" letter-spacing="1">DATABASE</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- Bottom legend                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <line x1="30" y1="428" x2="1165" y2="428" stroke="#2A3A52" stroke-width="1"/>
+
+  <rect x="30" y="440" width="8" height="8" rx="1" fill="#0F1520" stroke="#3B82F6" stroke-width="1.5"/>
+  <text x="44" y="449" fill="#6B7280" font-size="9.5">Core Processing node</text>
+
+  <rect x="160" y="440" width="8" height="8" rx="1" fill="#0F1520" stroke="#2A3A52" stroke-width="1"/>
+  <text x="174" y="449" fill="#6B7280" font-size="9.5">Standard node</text>
+
+  <line x1="280" y1="444" x2="305" y2="444" stroke="#3B82F6" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="312" y="449" fill="#6B7280" font-size="9.5">Data flow direction</text>
+
+  <text x="1165" y="449" text-anchor="end" fill="#3B7" font-size="9" font-style="italic">Auth: mobile/password → bcrypt → JWT (stored in localStorage)</text>
+  <text x="1165" y="461" text-anchor="end" fill="#3B7" font-size="9" font-style="italic">Demo mode: x-demo-mode header → scoped data per session</text>
+
+</svg>
